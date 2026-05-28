@@ -12,7 +12,10 @@ const initialState={
     isFilterOpen:false,
     selectedProduct:null,
     errors:null,
-    successMessage:null
+    successMessage:null,
+    // ── NEW ──────────────────────────────────────────────────────────────
+    searchQuery:'',
+    priceRange:[0, 10000],
 }
 
 export const addProductAsync=createAsyncThunk("products/addProductAsync",async(data)=>{
@@ -67,7 +70,14 @@ const productSlice=createSlice({
         },
         resetProductFetchStatus:(state)=>{
             state.productFetchStatus='idle'
-        }
+        },
+        // ── NEW actions ───────────────────────────────────────────────────
+        setSearchQuery:(state,action)=>{
+            state.searchQuery=action.payload
+        },
+        setPriceRange:(state,action)=>{
+            state.priceRange=action.payload
+        },
     },
     extraReducers:(builder)=>{
         builder
@@ -160,8 +170,22 @@ export const selectProductUpdateStatus=(state)=>state.ProductSlice.productUpdate
 export const selectProductAddStatus=(state)=>state.ProductSlice.productAddStatus
 export const selectProductIsFilterOpen=(state)=>state.ProductSlice.isFilterOpen
 export const selectProductFetchStatus=(state)=>state.ProductSlice.productFetchStatus
+// ── NEW selectors ─────────────────────────────────────────────────────────
+export const selectSearchQuery=(state)=>state.ProductSlice.searchQuery
+export const selectPriceRange=(state)=>state.ProductSlice.priceRange
 
 // exporting actions
-export const {clearProductSuccessMessage,clearProductErrors,clearSelectedProduct,resetProductStatus,resetProductUpdateStatus,resetProductAddStatus,toggleFilters,resetProductFetchStatus}=productSlice.actions
+export const {
+    clearProductSuccessMessage,
+    clearProductErrors,
+    clearSelectedProduct,
+    resetProductStatus,
+    resetProductUpdateStatus,
+    resetProductAddStatus,
+    toggleFilters,
+    resetProductFetchStatus,
+    setSearchQuery,   // NEW
+    setPriceRange,    // NEW
+}=productSlice.actions
 
 export default productSlice.reducer

@@ -34,6 +34,17 @@ export const fetchProducts=async(filters)=>{
     if(filters.user){
         queryString+=`user=${filters.user}&`
     }
+
+    // ── NEW: search query ─────────────────────────────────────────────────
+    if(filters.search && filters.search.trim() !== ''){
+        queryString+=`search=${encodeURIComponent(filters.search.trim())}&`
+    }
+
+    // ── NEW: price range ──────────────────────────────────────────────────
+    if(filters.priceRange){
+        if(filters.priceRange[0] !== undefined) queryString+=`priceMin=${filters.priceRange[0]}&`
+        if(filters.priceRange[1] !== undefined) queryString+=`priceMax=${filters.priceRange[1]}&`
+    }
     
     try {
         const res=await axiosi.get(`/products?${queryString}`)
