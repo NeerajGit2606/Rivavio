@@ -10,6 +10,7 @@ const initialState={
     reviewFetchStatus:"idle",
     reviews:[],
     errors:null,
+    totalCount: 0, 
     successMessage:null
 }
 
