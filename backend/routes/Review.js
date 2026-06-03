@@ -1,3 +1,8 @@
+const express = require('express')
+const reviewController = require("../controllers/Review")
+const router = express.Router()
+const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+
 /**
  * @swagger
  * /reviews:
@@ -12,11 +17,22 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [product, rating, comment]
+ *             required:
+ *               - product
+ *               - rating
+ *               - comment
  *             properties:
- *               product: { type: string, example: "64a1b2c3d4e5f6789abc0002" }
- *               rating:  { type: integer, minimum: 1, maximum: 5, example: 4 }
- *               comment: { type: string, example: "Very good quality!" }
+ *               product:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0002"
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4
+ *               comment:
+ *                 type: string
+ *                 example: "Very good quality!"
  *     responses:
  *       201:
  *         description: Review created
@@ -39,20 +55,26 @@ router.post("/", authMiddleware, reviewController.create)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Product ID
  *       - in: query
  *         name: page
- *         schema: { type: integer, default: 1 }
+ *         schema:
+ *           type: integer
+ *           default: 1
  *       - in: query
  *         name: limit
- *         schema: { type: integer, default: 5 }
+ *         schema:
+ *           type: integer
+ *           default: 5
  *     responses:
  *       200:
  *         description: List of reviews
  *         headers:
  *           X-Total-Count:
- *             schema: { type: integer }
+ *             schema:
+ *               type: integer
  *             description: Total approved reviews count
  *         content:
  *           application/json:
@@ -77,7 +99,8 @@ router.get("/product/:id", reviewController.getByProductId)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Review ID
  *     requestBody:
  *       required: true
@@ -86,8 +109,14 @@ router.get("/product/:id", reviewController.getByProductId)
  *           schema:
  *             type: object
  *             properties:
- *               rating:  { type: integer, minimum: 1, maximum: 5, example: 5 }
- *               comment: { type: string, example: "Updated review comment" }
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *               comment:
+ *                 type: string
+ *                 example: "Updated review comment"
  *     responses:
  *       200:
  *         description: Review updated
@@ -114,7 +143,8 @@ router.patch("/:id", authMiddleware, reviewController.updateById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Review ID
  *     responses:
  *       200:
@@ -138,7 +168,8 @@ router.delete("/:id", authMiddleware, reviewController.deleteById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Review ID
  *     responses:
  *       200:
@@ -156,4 +187,4 @@ router.delete("/:id", authMiddleware, reviewController.deleteById)
  */
 router.patch("/:id/approve", adminMiddleware, reviewController.toggleApproval)
 
-module.exports=router
+module.exports = router

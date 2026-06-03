@@ -1,3 +1,7 @@
+const express = require("express")
+const userController = require("../controllers/User")
+const router = express.Router()
+
 /**
  * @swagger
  * /users/{id}:
@@ -10,7 +14,8 @@
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     responses:
  *       200:
@@ -38,7 +43,8 @@ router.get("/:id", userController.getById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     requestBody:
  *       required: true
@@ -47,9 +53,15 @@ router.get("/:id", userController.getById)
  *           schema:
  *             type: object
  *             properties:
- *               name:    { type: string, example: "Neeraj Sharma" }
- *               email:   { type: string, example: "neeraj@example.com" }
- *               isAdmin: { type: boolean, example: false }
+ *               name:
+ *                 type: string
+ *                 example: "Neeraj Sharma"
+ *               email:
+ *                 type: string
+ *                 example: "neeraj@example.com"
+ *               isAdmin:
+ *                 type: boolean
+ *                 example: false
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -64,4 +76,4 @@ router.get("/:id", userController.getById)
  */
 router.patch("/:id", userController.updateById)
 
-module.exports=router
+module.exports = router

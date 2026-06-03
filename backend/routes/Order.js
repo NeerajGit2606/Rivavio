@@ -1,3 +1,7 @@
+const express = require('express')
+const orderController = require("../controllers/Order")
+const router = express.Router()
+
 /**
  * @swagger
  * /orders:
@@ -12,12 +16,26 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [user, items, totalAmount, paymentMethod]
+ *             required:
+ *               - user
+ *               - items
+ *               - totalAmount
+ *               - paymentMethod
  *             properties:
- *               user:          { type: string, example: "64a1b2c3d4e5f6789abc0001" }
- *               items:         { type: array, items: { type: string }, example: ["64a1b2c3d4e5f6789abc0002"] }
- *               totalAmount:   { type: number, example: 4999 }
- *               paymentMethod: { type: string, example: "Credit Card" }
+ *               user:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0001"
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["64a1b2c3d4e5f6789abc0002"]
+ *               totalAmount:
+ *                 type: number
+ *                 example: 4999
+ *               paymentMethod:
+ *                 type: string
+ *                 example: "Credit Card"
  *     responses:
  *       201:
  *         description: Order created successfully
@@ -64,7 +82,8 @@ router.get("/", orderController.getAll)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     responses:
  *       200:
@@ -94,7 +113,8 @@ router.get("/user/:id", orderController.getByUserId)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Order ID
  *     requestBody:
  *       required: true
@@ -103,8 +123,12 @@ router.get("/user/:id", orderController.getByUserId)
  *           schema:
  *             type: object
  *             properties:
- *               status: { type: string, example: "Shipped" }
- *               trackingNumber: { type: string, example: "TRK123456789" }
+ *               status:
+ *                 type: string
+ *                 example: "Shipped"
+ *               trackingNumber:
+ *                 type: string
+ *                 example: "TRK123456789"
  *     responses:
  *       200:
  *         description: Order updated successfully
@@ -119,5 +143,4 @@ router.get("/user/:id", orderController.getByUserId)
  */
 router.patch("/:id", orderController.updateById)
 
-
-module.exports=router
+module.exports = router

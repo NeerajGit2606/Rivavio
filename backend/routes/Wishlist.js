@@ -1,3 +1,7 @@
+const express = require("express")
+const wishlistController = require("../controllers/Wishlist")
+const router = express.Router()
+
 /**
  * @swagger
  * /wishlist:
@@ -12,10 +16,16 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [user, product]
+ *             required:
+ *               - user
+ *               - product
  *             properties:
- *               user:    { type: string, example: "64a1b2c3d4e5f6789abc0001" }
- *               product: { type: string, example: "64a1b2c3d4e5f6789abc0002" }
+ *               user:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0001"
+ *               product:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0002"
  *     responses:
  *       201:
  *         description: Item added to wishlist
@@ -38,7 +48,8 @@ router.post("/", wishlistController.create)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     responses:
  *       200:
@@ -68,7 +79,8 @@ router.get("/user/:id", wishlistController.getByUserId)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Wishlist item ID
  *     requestBody:
  *       required: true
@@ -77,7 +89,9 @@ router.get("/user/:id", wishlistController.getByUserId)
  *           schema:
  *             type: object
  *             properties:
- *               product: { type: string, example: "64a1b2c3d4e5f6789abc0003" }
+ *               product:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0003"
  *     responses:
  *       200:
  *         description: Wishlist item updated
@@ -104,7 +118,8 @@ router.patch("/:id", wishlistController.updateById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Wishlist item ID
  *     responses:
  *       200:
@@ -116,4 +131,4 @@ router.patch("/:id", wishlistController.updateById)
  */
 router.delete("/:id", wishlistController.deleteById)
 
-module.exports=router
+module.exports = router

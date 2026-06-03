@@ -1,3 +1,7 @@
+const express = require('express')
+const cartController = require('../controllers/Cart')
+const router = express.Router()
+
 /**
  * @swagger
  * /cart:
@@ -12,11 +16,20 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [user, product, quantity]
+ *             required:
+ *               - user
+ *               - product
+ *               - quantity
  *             properties:
- *               user:     { type: string, example: "64a1b2c3d4e5f6789abc0001" }
- *               product:  { type: string, example: "64a1b2c3d4e5f6789abc0002" }
- *               quantity: { type: integer, example: 2 }
+ *               user:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0001"
+ *               product:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc0002"
+ *               quantity:
+ *                 type: integer
+ *                 example: 2
  *     responses:
  *       201:
  *         description: Item added to cart
@@ -39,7 +52,8 @@ router.post("/", cartController.create)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     responses:
  *       200:
@@ -69,7 +83,8 @@ router.get("/user/:id", cartController.getByUserId)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Cart item ID
  *     requestBody:
  *       required: true
@@ -78,7 +93,9 @@ router.get("/user/:id", cartController.getByUserId)
  *           schema:
  *             type: object
  *             properties:
- *               quantity: { type: integer, example: 3 }
+ *               quantity:
+ *                 type: integer
+ *                 example: 3
  *     responses:
  *       200:
  *         description: Cart item updated
@@ -105,7 +122,8 @@ router.patch("/:id", cartController.updateById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Cart item ID
  *     responses:
  *       200:
@@ -129,7 +147,8 @@ router.delete("/:id", cartController.deleteById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     responses:
  *       200:
@@ -141,4 +160,4 @@ router.delete("/:id", cartController.deleteById)
  */
 router.delete("/user/:id", cartController.deleteByUserId)
 
-module.exports=router
+module.exports = router

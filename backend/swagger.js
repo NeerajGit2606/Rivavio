@@ -82,10 +82,14 @@ const options = {
                     properties: {
                         _id: { type: 'string', example: '64a1b2c3d4e5f6789abc3333' },
                         user: { type: 'string', example: '64a1b2c3d4e5f6789abc0001' },
-                        items: { type: array, items: { type: string }, example: ["64a1b2c3d4e5f6789abc0002"] },
-                        totalAmount: { type: number, example: 4999 },
-                        status: { type: string, example: 'Pending' },
-                        paymentMethod: { type: string, example: 'Credit Card' },
+                        items: {
+                            type: 'array',
+                            items: { type: 'string' },
+                            example: ["64a1b2c3d4e5f6789abc0002"]
+                        },
+                        totalAmount: { type: 'number', example: 4999 },
+                        status: { type: 'string', example: 'Pending' },
+                        paymentMethod: { type: 'string', example: 'Credit Card' },
                         createdAt: { type: 'string', format: 'date-time' },
                         updatedAt: { type: 'string', format: 'date-time' }
                     }

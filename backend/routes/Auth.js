@@ -1,3 +1,8 @@
+const express = require("express");
+const router = express.Router();
+const authController = require("../controllers/Auth");
+const { verifyToken } = require("../middleware/VerifyToken");
+
 /**
  * @swagger
  * /auth/signup:
@@ -10,16 +15,21 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             required:
+ *               - email
+ *               - password
  *             properties:
- *               name:     { type: string, example: "Neeraj Sharma" }
- *               email:    { type: string, example: "neeraj@example.com" }
- *               password: { type: string, example: "StrongPass@123" }
+ *               email:
+ *                 type: string
+ *                 example: "neeraj@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "StrongPass@123"
  *     responses:
  *       201:
- *         description: User registered successfully
+ *         description: User created successfully
  *       400:
- *         description: Validation error
+ *         description: Invalid input
  *       500:
  *         description: Server error
  */
@@ -37,10 +47,16 @@ router.post("/signup", authController.signup)
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, password]
+ *             required:
+ *               - email
+ *               - password
  *             properties:
- *               email:    { type: string, example: "neeraj@example.com" }
- *               password: { type: string, example: "StrongPass@123" }
+ *               email:
+ *                 type: string
+ *                 example: "neeraj@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "StrongPass@123"
  *     responses:
  *       200:
  *         description: Login successful
@@ -63,10 +79,16 @@ router.post("/login", authController.login)
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, otp]
+ *             required:
+ *               - email
+ *               - otp
  *             properties:
- *               email: { type: string, example: "neeraj@example.com" }
- *               otp:   { type: string, example: "123456" }
+ *               email:
+ *                 type: string
+ *                 example: "neeraj@example.com"
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
  *     responses:
  *       200:
  *         description: OTP verified
@@ -87,9 +109,12 @@ router.post("/verify-otp", authController.verifyOtp)
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email]
+ *             required:
+ *               - email
  *             properties:
- *               email: { type: string, example: "neeraj@example.com" }
+ *               email:
+ *                 type: string
+ *                 example: "neeraj@example.com"
  *     responses:
  *       200:
  *         description: OTP resent
@@ -108,9 +133,12 @@ router.post("/resend-otp", authController.resendOtp)
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email]
+ *             required:
+ *               - email
  *             properties:
- *               email: { type: string, example: "neeraj@example.com" }
+ *               email:
+ *                 type: string
+ *                 example: "neeraj@example.com"
  *     responses:
  *       200:
  *         description: Reset link sent
@@ -129,11 +157,20 @@ router.post("/forgot-password", authController.forgotPassword)
  *         application/json:
  *           schema:
  *             type: object
- *             required: [userId, passwordResetToken, newPassword]
+ *             required:
+ *               - userId
+ *               - passwordResetToken
+ *               - newPassword
  *             properties:
- *               userId:            { type: string, example: "64a1b2c3d4e5f6789abc1234" }
- *               passwordResetToken:{ type: string, example: "token123" }
- *               newPassword:       { type: string, example: "NewPass@123" }
+ *               userId:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6789abc1234"
+ *               passwordResetToken:
+ *                 type: string
+ *                 example: "token123"
+ *               newPassword:
+ *                 type: string
+ *                 example: "NewPass@123"
  *     responses:
  *       200:
  *         description: Password reset successful
@@ -170,4 +207,4 @@ router.get("/check-auth", verifyToken, authController.checkAuth)
  */
 router.get("/logout", authController.logout)
 
-module.exports=router
+module.exports = router

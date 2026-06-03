@@ -1,3 +1,8 @@
+const express = require("express");
+const router = express.Router();
+const paymentController = require("../controllers/Payment");
+const { verifyToken } = require("../middleware/VerifyToken");
+
 /**
  * @swagger
  * /payment/create-order:
@@ -12,17 +17,19 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [amount, currency]
+ *             required:
+ *               - amount
+ *               - currency
  *             properties:
- *               amount:   { type: number, example: 4999 }
- *               currency: { type: string, example: "INR" }
+ *               amount:
+ *                 type: number
+ *                 example: 4999
+ *               currency:
+ *                 type: string
+ *                 example: "INR"
  *     responses:
  *       201:
  *         description: Payment order created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Payment'
  *       500:
  *         description: Server error
  */
@@ -42,18 +49,23 @@ router.post("/create-order", verifyToken, paymentController.createOrder)
  *         application/json:
  *           schema:
  *             type: object
- *             required: [orderId, paymentId, signature]
+ *             required:
+ *               - orderId
+ *               - paymentId
+ *               - signature
  *             properties:
- *               orderId:   { type: string, example: "order_DBJOWzybf0sJbb" }
- *               paymentId: { type: string, example: "pay_DBJOuTyf0sJbb" }
- *               signature:{ type: string, example: "generated_signature_string" }
+ *               orderId:
+ *                 type: string
+ *                 example: "order_DBJOWzybf0sJbb"
+ *               paymentId:
+ *                 type: string
+ *                 example: "pay_DBJOuTyf0sJbb"
+ *               signature:
+ *                 type: string
+ *                 example: "generated_signature_string"
  *     responses:
  *       200:
  *         description: Payment verified successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Payment'
  *       400:
  *         description: Invalid signature or payment details
  *       500:

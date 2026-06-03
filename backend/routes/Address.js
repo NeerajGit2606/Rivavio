@@ -1,3 +1,7 @@
+const express = require('express')
+const addressController = require("../controllers/Address")
+const router = express.Router()
+
 /**
  * @swagger
  * /address:
@@ -34,7 +38,8 @@ router.post("/", addressController.create)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: User ID
  *     responses:
  *       200:
@@ -64,7 +69,8 @@ router.get("/user/:id", addressController.getByUserId)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -93,7 +99,8 @@ router.patch("/:id", addressController.updateById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Address deleted
@@ -103,3 +110,5 @@ router.patch("/:id", addressController.updateById)
  *         description: Server error
  */
 router.delete("/:id", addressController.deleteById)
+
+module.exports = router

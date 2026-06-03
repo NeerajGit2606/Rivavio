@@ -1,3 +1,6 @@
+const express = require('express')
+const productController = require("../controllers/Product")
+const router = express.Router()
 /**
  * @swagger
  * /products:
@@ -33,31 +36,42 @@ router.post("/", productController.create)
  *     parameters:
  *       - in: query
  *         name: brand
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Filter by brand
  *       - in: query
  *         name: category
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Filter by category
  *       - in: query
  *         name: page
- *         schema: { type: integer, default: 1 }
+ *         schema:
+ *           type: integer
+ *           default: 1
  *       - in: query
  *         name: limit
- *         schema: { type: integer, default: 10 }
+ *         schema:
+ *           type: integer
+ *           default: 10
  *       - in: query
  *         name: sort
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Field to sort by
  *       - in: query
  *         name: order
- *         schema: { type: string, enum: [asc, desc], default: asc }
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
  *     responses:
  *       200:
  *         description: List of products
  *         headers:
  *           X-Total-Count:
- *             schema: { type: integer }
+ *             schema:
+ *               type: integer
  *             description: Total products count
  *         content:
  *           application/json:
@@ -80,7 +94,8 @@ router.get("/", productController.getAll)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Product ID
  *     responses:
  *       200:
@@ -108,7 +123,8 @@ router.get("/:id", productController.getById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Product ID
  *     requestBody:
  *       required: true
@@ -142,7 +158,8 @@ router.patch("/:id", productController.updateById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Product ID
  *     responses:
  *       200:
@@ -170,7 +187,8 @@ router.patch("/undelete/:id", productController.undeleteById)
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: Product ID
  *     responses:
  *       200:
@@ -182,4 +200,4 @@ router.patch("/undelete/:id", productController.undeleteById)
  */
 router.delete("/:id", productController.deleteById)
 
-module.exports=router
+module.exports = router
