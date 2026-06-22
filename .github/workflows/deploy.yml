@@ -68,4 +68,5 @@ jobs:
             cd ~/Trovia
             git pull origin main
             docker-compose down
-            docker-compose up -d --build
+            docker build -t trovia-backend ./backend
+            docker-compose up -d
