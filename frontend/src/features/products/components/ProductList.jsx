@@ -5,6 +5,7 @@ import {
 } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useSearchParams } from 'react-router-dom'
 import {
     fetchProductsAsync, resetProductFetchStatus,
     selectProductFetchStatus, selectProductIsFilterOpen,
@@ -30,10 +31,9 @@ import {
 } from '../../wishlist/WishlistSlice'
 import { selectLoggedInUser } from '../../auth/AuthSlice'
 import { toast } from 'react-toastify'
-import { banner1, banner2, banner3, banner4, loadingAnimation } from '../../../assets'
+import { loadingAnimation } from '../../../assets'
 import { resetCartItemAddStatus, selectCartItemAddStatus } from '../../cart/CartSlice'
 import { motion } from 'framer-motion'
-import { ProductBanner } from './ProductBanner'
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
 import Lottie from 'lottie-react'
@@ -41,6 +41,7 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
 import CachedOutlinedIcon from '@mui/icons-material/CachedOutlined';
 import HeadsetMicOutlinedIcon from '@mui/icons-material/HeadsetMicOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
+import { formatPrice } from '../../../utils/formatPrice';
 
 const sortOptions = [
     { name: "Price: low to high", sort: "price", order: "asc" },
@@ -48,18 +49,25 @@ const sortOptions = [
     { name: "Rating: high to low", sort: "averageRating", order: "desc" },
 ]
 
-const bannerImages = [banner1, banner3, banner2, banner4]
 const DEBOUNCE_MS = 400
 
 const trustFeatures = [
-    { icon: <LocalShippingOutlinedIcon />, title: 'Free Shipping', desc: 'On orders over $50' },
+    { icon: <LocalShippingOutlinedIcon />, title: 'Free Shipping', desc: 'On orders over ₹999' },
     { icon: <CachedOutlinedIcon />, title: 'Easy Returns', desc: '30-day return policy' },
     { icon: <HeadsetMicOutlinedIcon />, title: '24/7 Support', desc: 'Always here for you' },
     { icon: <VerifiedOutlinedIcon />, title: 'Secure Payment', desc: '100% protected' },
 ]
 
 export const ProductList = () => {
-    const [filters, setFilters] = useState({})
+    const [searchParams] = useSearchParams()
+    const [filters, setFilters] = useState(() => {
+        const initial = {}
+        const brandParam = searchParams.get('brand')
+        const categoryParam = searchParams.get('category')
+        if (brandParam) initial.brand = [brandParam]
+        if (categoryParam) initial.category = [categoryParam]
+        return initial
+    })
     const [page, setPage] = useState(1)
     const [sort, setSort] = useState(null)
     const theme = useTheme()
@@ -69,8 +77,6 @@ export const ProductList = () => {
     const [searchInput, setSearchInput] = useState(searchQuery)
     const debounceTimer = useRef(null)
 
-    const is1200 = useMediaQuery(theme.breakpoints.down(1200))
-    const is800 = useMediaQuery(theme.breakpoints.down(800))
     const is600 = useMediaQuery(theme.breakpoints.down(600))
     const is500 = useMediaQuery(theme.breakpoints.down(500))
     const is488 = useMediaQuery(theme.breakpoints.down(488))
@@ -214,8 +220,8 @@ export const ProductList = () => {
                                     sx={{ color: '#0F1111' }}
                                 />
                                 <Stack direction='row' justifyContent='space-between'>
-                                    <Typography variant='body2' fontWeight={600}>${priceRange[0]}</Typography>
-                                    <Typography variant='body2' fontWeight={600}>${priceRange[1]}</Typography>
+                                    <Typography variant='body2' fontWeight={600}>{formatPrice(priceRange[0])}</Typography>
+                                    <Typography variant='body2' fontWeight={600}>{formatPrice(priceRange[1])}</Typography>
                                 </Stack>
                             </Stack>
                         </AccordionDetails>
@@ -262,13 +268,6 @@ export const ProductList = () => {
                 </Stack>
             ) : (
                 <Box>
-                    {/* Hero Banner */}
-                    {!is600 && (
-                        <Box sx={{ width: '100%', height: is800 ? '300px' : is1200 ? '420px' : '520px', overflow: 'hidden' }}>
-                            <ProductBanner images={bannerImages} />
-                        </Box>
-                    )}
-
                     {/* Trust Features Strip */}
                     <Box sx={{ bgcolor: '#F7F7F7', borderTop: '1px solid #E8E8E1', borderBottom: '1px solid #E8E8E1', py: 2.5 }}>
                         <Stack

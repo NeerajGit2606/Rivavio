@@ -258,3 +258,61 @@ exports.checkAuth=async(req,res)=>{
         res.sendStatus(500)
     }
 }
+
+// Called after passport's Google strategy has already found/created req.user.
+// Issues the same JWT cookie a normal login would, then sends the shopper
+// back to the frontend so the SPA picks up the session via checkAuth.
+exports.googleCallback=async(req,res)=>{
+    try {
+        const secureInfo=sanitizeUser(req.user)
+        const token=generateToken(secureInfo)
+
+        res.cookie('token',token,{
+            sameSite:process.env.PRODUCTION==='true'?"None":'Lax',
+            maxAge:new Date(Date.now() + (parseInt(process.env.COOKIE_EXPIRATION_DAYS * 24 * 60 * 60 * 1000))),
+            httpOnly:true,
+            secure:process.env.PRODUCTION==='true'?true:false
+        })
+
+        res.redirect(`${process.env.ORIGIN || 'http://localhost:3000'}/`)
+    } catch (error) {
+        console.log(error);
+        res.redirect(`${process.env.ORIGIN || 'http://localhost:3000'}/login?error=google_auth_failed`)
+    }
+}
+
+// Lets a shopper check out without creating a real password-based account.
+// A lightweight isGuest user is created behind the scenes so the rest of the
+// app (cart/address/order, all keyed by userId) works completely unchanged.
+exports.guestCheckout=async(req,res)=>{
+    try {
+        const { name, email } = req.body
+
+        if(!name || !email){
+            return res.status(400).json({message:"Name and email are required"})
+        }
+
+        let user = await User.findOne({ email })
+
+        if(!user){
+            const randomPassword = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10)
+            user = new User({ name, email, password: randomPassword, isGuest: true, isVerified: true })
+            await user.save()
+        }
+
+        const secureInfo = sanitizeUser(user)
+        const token = generateToken(secureInfo)
+
+        res.cookie('token', token, {
+            sameSite: process.env.PRODUCTION === 'true' ? "None" : 'Lax',
+            maxAge: new Date(Date.now() + (parseInt(process.env.COOKIE_EXPIRATION_DAYS * 24 * 60 * 60 * 1000))),
+            httpOnly: true,
+            secure: process.env.PRODUCTION === 'true' ? true : false
+        })
+
+        res.status(200).json(sanitizeUser(user))
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message:"Error starting guest checkout, please try again later"})
+    }
+}

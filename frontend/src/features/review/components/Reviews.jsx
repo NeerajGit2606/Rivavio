@@ -101,7 +101,8 @@ export const Reviews = ({ productId, averageRating }) => {
 
 
     const handleAddReview = (data) => {
-        const review = { ...data, rating: value, user: loggedInUser._id, product: productId }
+        const images = data.images ? data.images.split(',').map(url => url.trim()).filter(Boolean) : []
+        const review = { comment: data.comment, rating: value, user: loggedInUser._id, product: productId, images }
         dispatch(createReviewAsync(review))
         setWriteReview(false)
     }
@@ -157,6 +158,8 @@ export const Reviews = ({ productId, averageRating }) => {
                         rating={review.rating}
                         username={review.user.name}
                         isApproved={review.isApproved}
+                        images={review.images}
+                        isVerifiedPurchase={review.isVerifiedPurchase}
                     />
                     {loggedInUser?.isAdmin && (
                         <Typography color={review.isApproved ? "success.main" : "error.main"}>
@@ -173,6 +176,8 @@ export const Reviews = ({ productId, averageRating }) => {
                         <Stack rowGap={3} position={'relative'} component={'form'} noValidate onSubmit={handleSubmit(handleAddReview)}>
 
                             <TextField id='reviewTextFeild' {...register("comment", { required: true })} sx={{ mt: 4, width: is840 ? "100%" : "40rem" }} multiline rows={6} fullWidth placeholder='Write a review...' />
+
+                            <TextField {...register("images")} sx={{ width: is840 ? "100%" : "40rem" }} fullWidth placeholder='Image URLs (comma separated, optional)' />
 
                             <Stack>
                                 <Typography gutterBottom variant='body2'>How much did you like the product?</Typography>

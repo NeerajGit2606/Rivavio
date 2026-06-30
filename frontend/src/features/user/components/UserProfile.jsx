@@ -7,6 +7,7 @@ import { Address } from '../../address/components/Address'
 import { useForm } from 'react-hook-form'
 import { LoadingButton } from '@mui/lab'
 import {toast} from 'react-toastify'
+import { formatPrice } from '../../../utils/formatPrice'
 
 export const UserProfile = () => {
 
@@ -90,6 +91,17 @@ export const UserProfile = () => {
                         <Typography>{userInfo?.email}</Typography>
                     </Stack>
 
+                    {/* wallet + loyalty */}
+                    <Stack flexDirection={is480?'column':'row'} justifyContent={'space-around'} columnGap={2} rowGap={1} p={2} component={Paper} elevation={0} sx={{bgcolor:'#F7F7F7'}}>
+                        <Stack alignItems={'center'}>
+                            <Typography variant='body2' color={'text.secondary'}>Wallet Balance</Typography>
+                            <Typography variant='h6' fontWeight={600}>{formatPrice(userInfo?.walletBalance || 0)}</Typography>
+                        </Stack>
+                        <Stack alignItems={'center'}>
+                            <Typography variant='body2' color={'text.secondary'}>Loyalty Points</Typography>
+                            <Typography variant='h6' fontWeight={600}>{userInfo?.loyaltyPoints || 0}</Typography>
+                        </Stack>
+                    </Stack>
 
                     {/* address section */}
                     <Stack justifyContent={'center'} alignItems={'center'} rowGap={3}>

@@ -171,15 +171,16 @@ export const Login = () => {
                 Log In
               </LoadingButton>
 
-              {/* Google login placeholder */}
+              {/* Google login */}
               <Box
+                component="a"
+                href={`${process.env.REACT_APP_BASE_URL}auth/google`}
                 sx={{
                   border: '1px solid #e0e0e0', py: 1.5, display: 'flex',
                   alignItems: 'center', justifyContent: 'center', gap: 1.5,
-                  cursor: 'pointer', transition: 'all 0.2s',
+                  cursor: 'pointer', transition: 'all 0.2s', textDecoration: 'none',
                   '&:hover': { bgcolor: '#f8f8f8', borderColor: '#ccc' },
                 }}
-                onClick={() => toast.info('Google login coming soon!')}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

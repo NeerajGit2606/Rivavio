@@ -13,6 +13,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { useForm } from "react-hook-form"
 import {addToCartAsync, resetCartItemAddStatus, selectCartItemAddStatus, selectCartItems} from '../../cart/CartSlice'
 import { motion } from 'framer-motion';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 
 export const Wishlist = () => {
 
@@ -133,6 +134,12 @@ export const Wishlist = () => {
     dispatch(addToCartAsync(data))
   }
 
+  const handleShareWishlist=()=>{
+    const link=`${window.location.origin}/wishlist/shared/${loggedInUser?._id}`
+    navigator.clipboard.writeText(link)
+    toast.success("Wishlist link copied to clipboard!")
+  }
+
 
   return (
     // parent
@@ -147,11 +154,14 @@ export const Wishlist = () => {
         <Stack width={is1130?"auto":'70rem'} rowGap={is480?2:4}>
 
             {/* heading area and back button */}
-            <Stack alignSelf={'flex-start'} flexDirection={'row'} columnGap={1} justifyContent={'center'} alignItems={'center'}>
-                <motion.div whileHover={{x:-5}}>
-                  <IconButton component={Link} to={'/'}><ArrowBackIcon fontSize={is480?'medium':'large'}/></IconButton>
-                </motion.div>
-                <Typography variant='h4' fontWeight={500}>Your wishlist</Typography>
+            <Stack alignSelf={'flex-start'} flexDirection={'row'} columnGap={1} justifyContent={'space-between'} alignItems={'center'} width={'100%'}>
+                <Stack flexDirection={'row'} columnGap={1} alignItems={'center'}>
+                  <motion.div whileHover={{x:-5}}>
+                    <IconButton component={Link} to={'/'}><ArrowBackIcon fontSize={is480?'medium':'large'}/></IconButton>
+                  </motion.div>
+                  <Typography variant='h4' fontWeight={500}>Your wishlist</Typography>
+                </Stack>
+                <Button startIcon={<ShareOutlinedIcon/>} variant='outlined' size='small' onClick={handleShareWishlist}>Share</Button>
             </Stack>
 
             {/* product grid */}

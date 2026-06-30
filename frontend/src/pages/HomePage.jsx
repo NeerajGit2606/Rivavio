@@ -13,7 +13,9 @@ import { createWishlistItemAsync, deleteWishlistItemByIdAsync, selectWishlistIte
 import { selectLoggedInUser } from '../features/auth/AuthSlice'
 import { toast } from 'react-toastify'
 import './HomePage.css'
-import { hero1, hero2, hero3, hero4, model1, model2, model3, model4, brand1, brand2 } from '../assets'
+import { model1, model2, model3, model4 } from '../assets'
+import { axiosi } from '../config/axios'
+import { formatPrice } from '../utils/formatPrice'
 
 const marqueeItems = [
   'FREE SHIPPING WORLDWIDE', 'NEW COLLECTION 2025', 'MONEY BACK WARRANTY',
@@ -29,20 +31,12 @@ const slides = [
   { id: 4, badge: 'EXCLUSIVE', title: "L'OREAL\nPARIS", subtitle: "Because You're Worth It", bg: '#f0edf5', model: model4 },
 ]
 
-const categories = [
-  { name: 'FACE', icon: '💄' },
-  { name: 'EYES', icon: '👁️' },
-  { name: 'LIPS', icon: '💋' },
-  { name: 'SKINCARE', icon: '🧴' },
-  { name: 'MAKEUP', icon: '🪞' },
-]
-
-const brands = [
-  { name: "L'OREAL", image: brand1 },
-  { name: 'AERIN', image: brand2 },
-  { name: 'DIOR', image: null },
-  { name: 'CHANEL', image: null },
-  { name: 'MAC', image: null },
+const categoryShowcaseConfig = [
+  { label: 'SKINCARE', tagline: 'BEST OF', keywords: ['cream', 'serum', 'lotion', 'moisturizer', 'cleanser', 'toner', 'skin', 'oil'] },
+  { label: 'MAKEUP', tagline: 'TOP PICKS', keywords: ['palette', 'foundation', 'concealer', 'blush', 'makeup', 'powder', 'eyeshadow'] },
+  { label: 'FACE', keywords: ['foundation', 'concealer', 'powder', 'blush', 'primer', 'face'] },
+  { label: 'EYES', keywords: ['mascara', 'eyeshadow', 'eyeliner', 'eyebrow', 'eye'] },
+  { label: 'LIPS', keywords: ['lipstick', 'lip gloss', 'lip liner', 'lip'] },
 ]
 
 const trustItems = [
@@ -63,10 +57,54 @@ export const HomePage = () => {
   const loggedInUser = useSelector(selectLoggedInUser)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [popup, setPopup] = useState(null)
+  const [topBrands, setTopBrands] = useState([])
+  const [categoryShowcase, setCategoryShowcase] = useState({})
 
   useEffect(() => {
     dispatch(fetchProductsAsync({ pagination: { page: 1, limit: 4 }, sort: { sort: 'createdAt', order: -1 }, user: true }))
   }, [dispatch])
+
+  useEffect(() => {
+    let cancelled = false
+    axiosi.get('/products?limit=20&page=1&user=true').then(res => {
+      if (cancelled) return
+      const seen = new Map()
+      for (const product of res.data) {
+        if (product.brand?._id && !seen.has(product.brand._id)) {
+          seen.set(product.brand._id, {
+            id: product.brand._id,
+            name: product.brand.name,
+            image: product.images?.[0] || product.thumbnail,
+          })
+        }
+        if (seen.size >= 5) break
+      }
+      setTopBrands(Array.from(seen.values()))
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    axiosi.get('/categories').then(catRes => {
+      if (cancelled) return
+      const relevantCategories = catRes.data.filter(c => ['beauty', 'skin-care', 'fragrances'].includes(c.name))
+      const categoryIds = relevantCategories.map(c => c._id)
+      if (categoryIds.length === 0) return
+      const qs = categoryIds.map(id => `category=${id}`).join('&')
+      return axiosi.get(`/products?${qs}&limit=60&page=1&user=true`).then(res => {
+        if (cancelled) return
+        const products = res.data
+        const showcase = {}
+        categoryShowcaseConfig.forEach(({ label, keywords }) => {
+          const match = products.find(p => keywords.some(k => p.title.toLowerCase().includes(k)))
+          if (match) showcase[label] = { image: match.images?.[0] || match.thumbnail, categoryId: match.category }
+        })
+        setCategoryShowcase(showcase)
+      })
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     if (addressStatus === 'fulfilled') dispatch(resetAddressStatus())
@@ -223,7 +261,7 @@ export const HomePage = () => {
                   <div className="product-info">
                     <p className="product-brand">{product.brand?.name || ''}</p>
                     <h3>{product.title}</h3>
-                    <p className="product-price">${product.price}</p>
+                    <p className="product-price">{formatPrice(product.price)}</p>
                     <button className="add-to-cart" onClick={e => handleAddToCart(e, product._id)}>
                       ADD TO CART
                     </button>
@@ -239,87 +277,70 @@ export const HomePage = () => {
       </section>
 
       {/* ===== PROMO BANNER ===== */}
-      <section className="promo-banner">
-        <div className="promo-item" onClick={() => navigate('/products')}>
-          <img src={hero1} alt="Skincare" />
-          <div className="promo-overlay" />
-          <div className="promo-text">
-            <span>BEST OF</span>
-            <h2>SKINCARE</h2>
-            <button className="promo-btn">EXPLORE</button>
-          </div>
-        </div>
-        <div className="promo-item" onClick={() => navigate('/products')}>
-          <img src={hero2} alt="Makeup" />
-          <div className="promo-overlay" />
-          <div className="promo-text">
-            <span>TOP BRANDS</span>
-            <h2>MAKEUP</h2>
-            <button className="promo-btn">EXPLORE</button>
-          </div>
-        </div>
-      </section>
+      {(categoryShowcase.SKINCARE || categoryShowcase.MAKEUP) && (
+        <section className="promo-banner">
+          {categoryShowcase.SKINCARE && (
+            <div className="promo-item" onClick={() => navigate(`/products?category=${categoryShowcase.SKINCARE.categoryId}`)}>
+              <img src={categoryShowcase.SKINCARE.image} alt="Skincare" />
+              <div className="promo-overlay" />
+              <div className="promo-text">
+                <span>BEST OF</span>
+                <h2>SKINCARE</h2>
+                <button className="promo-btn">EXPLORE</button>
+              </div>
+            </div>
+          )}
+          {categoryShowcase.MAKEUP && (
+            <div className="promo-item" onClick={() => navigate(`/products?category=${categoryShowcase.MAKEUP.categoryId}`)}>
+              <img src={categoryShowcase.MAKEUP.image} alt="Makeup" />
+              <div className="promo-overlay" />
+              <div className="promo-text">
+                <span>TOP PICKS</span>
+                <h2>MAKEUP</h2>
+                <button className="promo-btn">EXPLORE</button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ===== FACE / EYES / LIPS STRIP ===== */}
-      <section className="face-strip">
-        {[
-          { label: 'FACE', img: hero3 },
-          { label: 'EYES', img: hero4 },
-          { label: 'LIPS', img: hero1 },
-        ].map(item => (
-          <div key={item.label} className="face-item" onClick={() => navigate('/products')}>
-            <img src={item.img} alt={item.label} />
-            <div className="face-item-overlay" />
-            <div className="face-item-text"><h3>{item.label}</h3></div>
-          </div>
-        ))}
-      </section>
-
-      {/* ===== CATEGORIES ===== */}
-      <section className="categories-section">
-        <p className="section-label">explore</p>
-        <h2 className="section-title">SHOP BY <span>CATEGORY</span></h2>
-        <div className="categories-grid">
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.name}
-              className="category-card"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.07 }}
-              onClick={() => navigate('/products')}
-            >
-              <span className="category-icon">{cat.icon}</span>
-              <h3>{cat.name}</h3>
-            </motion.div>
+      {['FACE', 'EYES', 'LIPS'].some(label => categoryShowcase[label]) && (
+        <section className="face-strip">
+          {['FACE', 'EYES', 'LIPS'].filter(label => categoryShowcase[label]).map(label => (
+            <div key={label} className="face-item" onClick={() => navigate(`/products?category=${categoryShowcase[label].categoryId}`)}>
+              <img src={categoryShowcase[label].image} alt={label} />
+              <div className="face-item-overlay" />
+              <div className="face-item-text"><h3>{label}</h3></div>
+            </div>
           ))}
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ===== BRANDS ===== */}
-      <section className="brands-section">
-        <p className="section-label">trusted partners</p>
-        <h2 className="section-title">TOP <span>BRANDS</span></h2>
-        <div className="brands-grid">
-          {brands.map((brand, i) => (
-            <motion.div
-              key={brand.name}
-              className="brand-card"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 0.45 }}
-              whileHover={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-            >
-              {brand.image
-                ? <img src={brand.image} alt={brand.name} />
-                : <h3>{brand.name}</h3>
-              }
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      {topBrands.length > 0 && (
+        <section className="brands-section">
+          <p className="section-label">trusted partners</p>
+          <h2 className="section-title">TOP <span>BRANDS</span></h2>
+          <div className="brands-grid">
+            {topBrands.map((brand, i) => (
+              <motion.div
+                key={brand.id}
+                className="brand-card"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.45 }}
+                whileHover={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                onClick={() => navigate(`/products?brand=${brand.id}`)}
+              >
+                <img src={brand.image} alt={brand.name} />
+                <h3>{brand.name}</h3>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Footer />
 
@@ -358,7 +379,7 @@ export const HomePage = () => {
                 <p className="popup-brand">{popup.brand?.name}</p>
                 <h2 className="popup-title">{popup.title}</h2>
                 <p style={{ fontSize: '12px', color: '#888', lineHeight: 1.7 }}>{popup.description?.slice(0, 120)}...</p>
-                <p className="popup-price">${popup.price}</p>
+                <p className="popup-price">{formatPrice(popup.price)}</p>
                 {popup.stockQuantity === 0
                   ? <p style={{ color: '#B12704', fontSize: '12px', letterSpacing: '1px' }}>OUT OF STOCK</p>
                   : <p style={{ color: '#007600', fontSize: '12px', letterSpacing: '1px' }}>In Stock</p>

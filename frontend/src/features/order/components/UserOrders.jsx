@@ -10,6 +10,9 @@ import { loadingAnimation, noOrdersAnimation } from '../../../assets'
 import { toast } from 'react-toastify'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {motion} from 'framer-motion'
+import { formatPrice } from '../../../utils/formatPrice'
+import { OrderTrackingTimeline } from './OrderTrackingTimeline'
+import { downloadInvoice } from '../OrderApi'
 
 
 export const UserOrders = () => {
@@ -70,6 +73,14 @@ export const UserOrders = () => {
         dispatch(addToCartAsync(item))
     }
 
+    const handleDownloadInvoice=async(orderId)=>{
+        try {
+            await downloadInvoice(orderId)
+        } catch (error) {
+            toast.error("Error downloading invoice, please try again later")
+        }
+    }
+
 
   return (
     <Stack justifyContent={'center'} alignItems={'center'}>
@@ -120,7 +131,7 @@ export const UserOrders = () => {
 
                                             <Stack>
                                                 <Typography>Total Amount</Typography>
-                                                <Typography>${order.total}</Typography>
+                                                <Typography>{formatPrice(order.total)}</Typography>
                                             </Stack>
                                         </Stack>
 
@@ -149,7 +160,7 @@ export const UserOrders = () => {
                                                                 <Typography variant='body1'  fontSize={'.9rem'}  color={'text.secondary'}>{product.product.brand.name}</Typography>
                                                                 <Typography color={'text.secondary'} fontSize={'.9rem'}>Qty: {product.quantity}</Typography>
                                                             </Stack>
-                                                            <Typography>${product.product.price}</Typography>
+                                                            <Typography>{formatPrice(product.product.price)}</Typography>
                                                         </Stack>
 
                                                         <Typography color={'text.secondary'}>{product.product.description}</Typography>
@@ -174,10 +185,14 @@ export const UserOrders = () => {
                                     </Stack>
 
                                     {/* lower */}
-                                    <Stack mt={2} flexDirection={'row'} justifyContent={'space-between'}>
-                                        <Typography mb={2}>Status : {order.status}</Typography>
+                                    <Stack mt={2} rowGap={2}>
+                                        <OrderTrackingTimeline status={order.status} statusHistory={order.statusHistory} />
+                                        <Stack flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'} flexWrap={'wrap'} rowGap={1}>
+                                            <Typography>Status : {order.status}</Typography>
+                                            <Button size='small' variant='outlined' onClick={()=>handleDownloadInvoice(order._id)}>Download Invoice</Button>
+                                        </Stack>
                                     </Stack>
-                                        
+
                                 </Stack>
                             ))
 

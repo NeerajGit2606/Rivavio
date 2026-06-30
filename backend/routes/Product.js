@@ -1,6 +1,9 @@
 const express = require('express')
+const multer = require('multer')
 const productController = require("../controllers/Product")
+const { adminMiddleware } = require("../middleware/auth")
 const router = express.Router()
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } })
 /**
  * @swagger
  * /products:
@@ -25,7 +28,43 @@ const router = express.Router()
  *       500:
  *         description: Server error
  */
-router.post("/", productController.create)
+router.post("/", adminMiddleware, productController.create)
+
+/**
+ * @swagger
+ * /products/bulk-upload:
+ *   post:
+ *     summary: Bulk create products from a CSV file (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       201:
+ *         description: Products created successfully
+ *       400:
+ *         description: Invalid CSV
+ *       500:
+ *         description: Server error
+ */
+router.post("/bulk-upload", adminMiddleware, upload.single('file'), productController.bulkUpload)
+
+/**
+ * @swagger
+ * /products/{id}/recommendations:
+ *   get:
+ *     summary: Get related products for a given product (same category)
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of related products
+ */
+router.get("/:id/recommendations", productController.getRecommendations)
 
 /**
  * @swagger
@@ -144,7 +183,7 @@ router.get("/:id", productController.getById)
  *       500:
  *         description: Server error
  */
-router.patch("/:id", productController.updateById)
+router.patch("/:id", adminMiddleware, productController.updateById)
 
 /**
  * @swagger
@@ -173,7 +212,7 @@ router.patch("/:id", productController.updateById)
  *       500:
  *         description: Server error
  */
-router.patch("/undelete/:id", productController.undeleteById)
+router.patch("/undelete/:id", adminMiddleware, productController.undeleteById)
 
 /**
  * @swagger
@@ -198,6 +237,6 @@ router.patch("/undelete/:id", productController.undeleteById)
  *       500:
  *         description: Server error
  */
-router.delete("/:id", productController.deleteById)
+router.delete("/:id", adminMiddleware, productController.deleteById)
 
 module.exports = router

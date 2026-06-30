@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form"
 import { toast } from 'react-toastify';
 import {noOrdersAnimation} from '../../../assets/index'
 import Lottie from 'lottie-react'
+import { formatPrice } from '../../../utils/formatPrice'
 
 
 export const AdminOrders = () => {
@@ -123,7 +124,7 @@ export const AdminOrders = () => {
                         ))
                       }
                     </TableCell>
-                    <TableCell align="right">{order.total}</TableCell>
+                    <TableCell align="right">{formatPrice(order.total)}</TableCell>
                     <TableCell align="right">
                       <Stack>
                         <Typography>{order.address[0].street}</Typography>

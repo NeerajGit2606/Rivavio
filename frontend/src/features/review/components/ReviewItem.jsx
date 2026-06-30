@@ -1,13 +1,14 @@
-import {Button, IconButton, Menu, MenuItem, Paper, Rating, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import {Button, Chip, IconButton, Menu, MenuItem, Paper, Rating, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectLoggedInUser } from '../../auth/AuthSlice';
 import {deleteReviewByIdAsync, selectReviewStatus, updateReviewByIdAsync} from '../ReviewSlice'
 import { useForm } from "react-hook-form"
 import {LoadingButton} from '@mui/lab'
 
-export const ReviewItem = ({id,username,userid,comment,rating,createdAt}) => {
+export const ReviewItem = ({id,username,userid,comment,rating,createdAt,images,isVerifiedPurchase}) => {
 
   const dispatch=useDispatch()
   const loggedInUser=useSelector(selectLoggedInUser)
@@ -46,11 +47,16 @@ export const ReviewItem = ({id,username,userid,comment,rating,createdAt}) => {
         <Stack flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
 
             <Stack flexDirection={'row'} columnGap={2}>
-                <Stack> 
-                        <Typography variant='h6' fontSize={"1.1rem"} fontWeight={500}>{username}</Typography>
-                        <motiondiv>
+                <Stack>
+                        <Stack flexDirection={'row'} alignItems={'center'} columnGap={1}>
+                            <Typography variant='h6' fontSize={"1.1rem"} fontWeight={500}>{username}</Typography>
+                            {isVerifiedPurchase && (
+                                <Chip size='small' icon={<VerifiedIcon sx={{fontSize:'14px !important'}}/>} label="Verified Purchase" color='success' variant='outlined'/>
+                            )}
+                        </Stack>
+                        <div>
                             <Rating size={edit?is480?'medium':'large':"small"} readOnly={!edit} onChange={(e)=>setEditRating(e.target.value)} value={edit?editRating:rating}/>
-                        </motiondiv>
+                        </div>
                 </Stack>
             </Stack>
 
@@ -86,8 +92,17 @@ export const ReviewItem = ({id,username,userid,comment,rating,createdAt}) => {
               </Stack>
             ):(<Typography color='graytext'>{comment}</Typography>)
           }
-            
+
         </Stack>
+
+        {/* review images */}
+        {!edit && images?.length > 0 && (
+            <Stack flexDirection={'row'} columnGap={1} flexWrap={'wrap'}>
+                {images.map((img,index)=>(
+                    <img key={index} src={img} alt={`review attachment ${index+1}`} style={{width:64,height:64,objectFit:'cover',borderRadius:4}}/>
+                ))}
+            </Stack>
+        )}
     </Stack>
   )
 }

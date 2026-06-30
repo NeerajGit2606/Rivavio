@@ -22,6 +22,11 @@ import { autoPlay } from 'react-swipeable-views-utils';
 import MobileStepper from '@mui/material/MobileStepper';
 import Lottie from 'lottie-react'
 import { loadingAnimation } from '../../../assets'
+import { formatPrice } from '../../../utils/formatPrice'
+import { GuestCheckoutModal } from '../../auth/components/GuestCheckoutModal'
+import { ProductRow } from './ProductRow'
+import { axiosi } from '../../../config/axios'
+import { addRecentlyViewed, getRecentlyViewed } from '../../../utils/recentlyViewed'
 
 // ── Hardcoded fallbacks removed — variants now come from DB ──────────────────
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
@@ -38,6 +43,9 @@ export const ProductDetails = () => {
     const [selectedColorIndex, setSelectedColorIndex] = useState(-1)
     const reviews = useSelector(selectReviews)
     const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+    const [guestModalOpen, setGuestModalOpen] = useState(false)
+    const [recommendations, setRecommendations] = useState([])
+    const [recentlyViewed, setRecentlyViewed] = useState([])
     const theme = useTheme()
     const is1420 = useMediaQuery(theme.breakpoints.down(1420))
     const is990 = useMediaQuery(theme.breakpoints.down(990))
@@ -104,6 +112,14 @@ export const ProductDetails = () => {
         if (id) {
             dispatch(fetchProductByIdAsync(id))
             dispatch(fetchReviewsByProductIdAsync({ id, page: 1, limit: 5 }))
+
+            axiosi.get(`/products/${id}/recommendations`).then(res => setRecommendations(res.data)).catch(() => setRecommendations([]))
+
+            const otherViewedIds = getRecentlyViewed().filter(viewedId => viewedId !== id)
+            Promise.all(otherViewedIds.map(viewedId => axiosi.get(`/products/${viewedId}`).then(res => res.data).catch(() => null)))
+                .then(results => setRecentlyViewed(results.filter(Boolean)))
+
+            addRecentlyViewed(id)
         }
     }, [id])
 
@@ -154,10 +170,17 @@ export const ProductDetails = () => {
         }
     }, [])
 
-    const handleAddToCart = () => {
-        const item = { user: loggedInUser._id, product: id, quantity }
-        dispatch(addToCartAsync(item))
+    const addToCart = (userId) => {
+        dispatch(addToCartAsync({ user: userId, product: id, quantity }))
         setQuantity(1)
+    }
+
+    const handleAddToCart = () => {
+        if (!loggedInUser?._id) {
+            setGuestModalOpen(true)
+            return
+        }
+        addToCart(loggedInUser._id)
     }
 
     const handleDecreaseQty = () => {
@@ -257,7 +280,7 @@ export const ProductDetails = () => {
                                             <Typography color={product?.stockQuantity <= 10 ? "error" : product?.stockQuantity <= 20 ? "orange" : "green"}>{product?.stockQuantity <= 10 ? `Only ${product?.stockQuantity} left` : product?.stockQuantity <= 20 ? "Only few left" : "In Stock"}</Typography>
                                         </Stack>
 
-                                        <Typography variant='h5'>${product?.price}</Typography>
+                                        <Typography variant='h5'>{formatPrice(product?.price)}</Typography>
                                     </Stack>
 
                                     {/* description */}
@@ -416,11 +439,22 @@ export const ProductDetails = () => {
                                 <Reviews productId={id} averageRating={averageRating} />
                             </Stack>
 
+                            {/* recommendations + recently viewed */}
+                            <Stack width={is1420 ? "auto" : '88rem'}>
+                                <ProductRow title="You may also like" products={recommendations} />
+                                <ProductRow title="Recently viewed" products={recentlyViewed} />
+                            </Stack>
+
                         </Stack>
                 }
 
             </Stack>
             }
+            <GuestCheckoutModal
+                open={guestModalOpen}
+                onClose={() => setGuestModalOpen(false)}
+                onGuestReady={(guestUser) => addToCart(guestUser._id)}
+            />
         </>
     )
 }

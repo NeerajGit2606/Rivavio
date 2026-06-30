@@ -1,7 +1,8 @@
 import {
     Stack, TextField, Typography, Button,
     FormControl, Radio, Paper, IconButton,
-    Grid, Box, useTheme, useMediaQuery, Collapse, Alert
+    Grid, Box, useTheme, useMediaQuery, Collapse, Alert,
+    Checkbox, FormControlLabel
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import React, { useEffect, useState } from 'react'
@@ -18,6 +19,12 @@ import { SHIPPING, TAXES } from '../../../constants'
 import { motion } from 'framer-motion'
 import { toast } from 'react-toastify'
 import { RazorpayButton } from '../../payment/RazorpayButton'
+import { formatPrice } from '../../../utils/formatPrice'
+import { selectUserInfo } from '../../user/UserSlice'
+import {
+    validateCouponAsync, selectAppliedCoupon, selectCouponValidateStatus,
+    selectCouponValidateError, clearCoupon, resetCouponValidateStatus
+} from '../../coupon/CouponSlice'
 
 export const Checkout = () => {
 
@@ -29,18 +36,52 @@ export const Checkout = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm()
     const dispatch = useDispatch()
     const loggedInUser = useSelector(selectLoggedInUser)
+    const userInfo = useSelector(selectUserInfo)
     const addressStatus = useSelector(selectAddressStatus)
     const navigate = useNavigate()
     const cartItems = useSelector(selectCartItems)
     const orderStatus = useSelector(selectOrderStatus)
     const currentOrder = useSelector(selectCurrentOrder)
 
+    const [couponInput, setCouponInput] = useState('')
+    const appliedCoupon = useSelector(selectAppliedCoupon)
+    const couponValidateStatus = useSelector(selectCouponValidateStatus)
+    const couponValidateError = useSelector(selectCouponValidateError)
+    const [useWallet, setUseWallet] = useState(false)
+
     const orderTotal = cartItems.reduce((acc, item) => (item.product.price * item.quantity) + acc, 0)
-    const grandTotal = orderTotal + SHIPPING + TAXES
+    const rawTotal = orderTotal + SHIPPING + TAXES
+    const preWalletTotal = Math.max(0, rawTotal - (appliedCoupon?.discountAmount || 0))
+    const walletBalance = userInfo?.walletBalance || 0
+    const walletAmountUsed = useWallet ? Math.min(walletBalance, preWalletTotal) : 0
+    const grandTotal = Math.max(0, preWalletTotal - walletAmountUsed)
 
     const theme = useTheme()
     const is900 = useMediaQuery(theme.breakpoints.down(900))
     const is480 = useMediaQuery(theme.breakpoints.down(480))
+
+    const handleApplyCoupon = () => {
+        if (!couponInput.trim()) return
+        dispatch(validateCouponAsync({ code: couponInput.trim(), cartTotal: rawTotal }))
+    }
+
+    const handleRemoveCoupon = () => {
+        dispatch(clearCoupon())
+        setCouponInput('')
+    }
+
+    useEffect(() => {
+        if (couponValidateStatus === 'rejected') {
+            toast.error(couponValidateError?.message || 'Invalid coupon')
+            dispatch(resetCouponValidateStatus())
+        } else if (couponValidateStatus === 'fulfilled' && appliedCoupon) {
+            toast.success(`Coupon applied: -${formatPrice(appliedCoupon.discountAmount)}`)
+        }
+    }, [couponValidateStatus])
+
+    useEffect(() => {
+        return () => { dispatch(clearCoupon()) }
+    }, [])
 
     useEffect(() => {
         if (addressStatus === 'fulfilled') reset()
@@ -70,7 +111,9 @@ export const Checkout = () => {
             address: selectedAddress,
             paymentMode: 'COD',
             paymentStatus: 'unpaid',
-            total: grandTotal,
+            total: rawTotal,
+            couponCode: appliedCoupon?.code,
+            walletAmountUsed,
         }
         dispatch(createOrderAsync(order))
     }
@@ -85,7 +128,9 @@ export const Checkout = () => {
             paymentMode: 'CARD',
             paymentStatus: 'paid',
             stripePaymentIntentId: paymentData.razorpay_payment_id,
-            total: grandTotal,
+            total: rawTotal,
+            couponCode: appliedCoupon?.code,
+            walletAmountUsed,
         }
         dispatch(createOrderAsync(order))
         toast.success('Payment successful!')
@@ -249,7 +294,46 @@ export const Checkout = () => {
             {/* ── RIGHT: Order Summary ── */}
             <Stack width={is900 ? '100%' : 'auto'} alignItems={is900 ? 'flex-start' : ''}>
                 <Typography variant="h4">Order Summary</Typography>
-                <Cart checkout={true} />
+
+                {/* Coupon code */}
+                <Stack width="100%" my={2}>
+                    {appliedCoupon ? (
+                        <Stack flexDirection="row" justifyContent="space-between" alignItems="center" p={1.5} sx={{ bgcolor: '#eafaf1', borderRadius: 1 }}>
+                            <Typography variant="body2" color="success.main">
+                                "{appliedCoupon.code}" applied — saved {formatPrice(appliedCoupon.discountAmount)}
+                            </Typography>
+                            <Button size="small" onClick={handleRemoveCoupon}>Remove</Button>
+                        </Stack>
+                    ) : (
+                        <Stack flexDirection="row" columnGap={1}>
+                            <TextField
+                                size="small"
+                                fullWidth
+                                placeholder="Have a coupon code?"
+                                value={couponInput}
+                                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                            />
+                            <LoadingButton
+                                loading={couponValidateStatus === 'pending'}
+                                variant="outlined"
+                                onClick={handleApplyCoupon}
+                            >
+                                Apply
+                            </LoadingButton>
+                        </Stack>
+                    )}
+                </Stack>
+
+                {/* Wallet */}
+                {walletBalance > 0 && (
+                    <FormControlLabel
+                        sx={{ alignSelf: 'flex-start', mb: 1 }}
+                        control={<Checkbox checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />}
+                        label={`Use wallet balance (${formatPrice(walletBalance)} available)`}
+                    />
+                )}
+
+                <Cart checkout={true} discountAmount={appliedCoupon?.discountAmount || 0} couponCode={appliedCoupon?.code || ''} walletAmountUsed={walletAmountUsed} />
 
                 {selectedPaymentMethod === 'COD' && (
                     <LoadingButton

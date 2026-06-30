@@ -1,5 +1,5 @@
 import { Box, Chip, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
@@ -10,6 +10,11 @@ import { selectLoggedInUser } from '../../auth/AuthSlice';
 import { addToCartAsync, selectCartItems } from '../../cart/CartSlice';
 import { motion } from 'framer-motion'
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import { formatPrice } from '../../../utils/formatPrice';
+import { GuestCheckoutModal } from '../../auth/components/GuestCheckoutModal';
+import { isInCompare, toggleCompare } from '../../../utils/compareStorage';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { toast } from 'react-toastify';
 
 export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity, handleAddRemoveFromWishlist, isWishlistCard, isAdminCard }) => {
 
@@ -21,13 +26,33 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
     const theme = useTheme()
     const is600 = useMediaQuery(theme.breakpoints.down(600))
 
+    const [guestModalOpen, setGuestModalOpen] = useState(false)
+    const [inCompare, setInCompare] = useState(isInCompare(id))
+
     const isProductAlreadyinWishlist = wishlistItems.some((item) => item.product._id === id)
     const isProductAlreadyInCart = cartItems.some((item) => item.product._id === id)
 
-    const handleAddToCart = async (e) => {
+    const handleToggleCompare = (e) => {
         e.stopPropagation()
-        const data = { user: loggedInUser?._id, product: id }
-        dispatch(addToCartAsync(data))
+        const { list, limitReached } = toggleCompare(id)
+        if (limitReached) {
+            toast.error('You can compare up to 4 products at a time')
+            return
+        }
+        setInCompare(list.includes(id))
+    }
+
+    const addToCart = (userId) => {
+        dispatch(addToCartAsync({ user: userId, product: id }))
+    }
+
+    const handleAddToCart = (e) => {
+        e.stopPropagation()
+        if (!loggedInUser?._id) {
+            setGuestModalOpen(true)
+            return
+        }
+        addToCart(loggedInUser._id)
     }
 
     return (
@@ -61,9 +86,9 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
                     />
                 )}
 
-                {/* Wishlist button */}
+                {/* Wishlist + Compare buttons */}
                 {!isAdminCard && (
-                    <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
+                    <Stack sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }} rowGap={0.5}>
                         <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
                             <Checkbox
                                 onClick={(e) => e.stopPropagation()}
@@ -74,7 +99,17 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
                                 sx={{ p: 0.5, bgcolor: 'rgba(255,255,255,0.9)', borderRadius: '50%' }}
                             />
                         </motion.div>
-                    </Box>
+                        <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
+                            <Checkbox
+                                onClick={handleToggleCompare}
+                                checked={inCompare}
+                                onChange={() => {}}
+                                icon={<CompareArrowsIcon sx={{ fontSize: 20, color: '#666' }} />}
+                                checkedIcon={<CompareArrowsIcon sx={{ fontSize: 20, color: '#1565C0' }} />}
+                                sx={{ p: 0.5, bgcolor: 'rgba(255,255,255,0.9)', borderRadius: '50%' }}
+                            />
+                        </motion.div>
+                    </Stack>
                 )}
 
                 {/* Product image */}
@@ -112,7 +147,7 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
 
                     <Stack direction="row" justifyContent="space-between" alignItems="center" mt={0.5}>
                         <Typography fontWeight={700} color="#B12704" fontSize={is600 ? '15px' : '17px'}>
-                            ${price}
+                            {formatPrice(price)}
                         </Typography>
 
                         {!isWishlistCard && !isAdminCard && (
@@ -141,6 +176,11 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
                     </Stack>
                 </Stack>
             </Box>
+            <GuestCheckoutModal
+                open={guestModalOpen}
+                onClose={() => setGuestModalOpen(false)}
+                onGuestReady={(guestUser) => addToCart(guestUser._id)}
+            />
         </motion.div>
     )
 }

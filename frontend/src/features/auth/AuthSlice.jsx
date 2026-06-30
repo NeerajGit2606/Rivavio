@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import { checkAuth, forgotPassword, login, logout, resendOtp, resetPassword, signup, verifyOtp } from './AuthApi'
+import { checkAuth, forgotPassword, guestCheckout, login, logout, resendOtp, resetPassword, signup, verifyOtp } from './AuthApi'
 
 const initialState={
     status:"idle",
@@ -21,7 +21,9 @@ const initialState={
     resetPasswordSuccessMessage:null,
     resetPasswordError:null,
     successMessage:null,
-    isAuthChecked:false
+    isAuthChecked:false,
+    guestCheckoutStatus:"idle",
+    guestCheckoutError:null
 }
 
 export const signupAsync=createAsyncThunk('auth/signupAsync',async(cred)=>{
@@ -59,6 +61,11 @@ export const checkAuthAsync=createAsyncThunk('auth/checkAuthAsync',async()=>{
 
 export const logoutAsync=createAsyncThunk("auth/logoutAsync",async()=>{
     const res=await logout()
+    return res
+})
+
+export const guestCheckoutAsync=createAsyncThunk('auth/guestCheckoutAsync',async(cred)=>{
+    const res=await guestCheckout(cred)
     return res
 })
 
@@ -120,6 +127,12 @@ const authSlice=createSlice({
         },
         clearResetPasswordError:(state)=>{
             state.resetPasswordError=null
+        },
+        resetGuestCheckoutStatus:(state)=>{
+            state.guestCheckoutStatus='idle'
+        },
+        clearGuestCheckoutError:(state)=>{
+            state.guestCheckoutError=null
         }
 
         
@@ -223,7 +236,19 @@ const authSlice=createSlice({
                 state.errors=action.error
                 state.isAuthChecked=true
             })
-            
+
+            .addCase(guestCheckoutAsync.pending,(state)=>{
+                state.guestCheckoutStatus='pending'
+            })
+            .addCase(guestCheckoutAsync.fulfilled,(state,action)=>{
+                state.guestCheckoutStatus='fullfilled'
+                state.loggedInUser=action.payload
+            })
+            .addCase(guestCheckoutAsync.rejected,(state,action)=>{
+                state.guestCheckoutStatus='rejected'
+                state.guestCheckoutError=action.error
+            })
+
     }
 })
 
@@ -249,9 +274,11 @@ export const selectForgotPasswordError=(state)=>state.AuthSlice.forgotPasswordEr
 export const selectResetPasswordStatus=(state)=>state.AuthSlice.resetPasswordStatus
 export const selectResetPasswordSuccessMessage=(state)=>state.AuthSlice.resetPasswordSuccessMessage
 export const selectResetPasswordError=(state)=>state.AuthSlice.resetPasswordError
+export const selectGuestCheckoutStatus=(state)=>state.AuthSlice.guestCheckoutStatus
+export const selectGuestCheckoutError=(state)=>state.AuthSlice.guestCheckoutError
 
 // exporting reducers
-export const {clearAuthSuccessMessage,clearAuthErrors,resetAuthStatus,clearSignupError,resetSignupStatus,clearLoginError,resetLoginStatus,clearOtpVerificationError,resetOtpVerificationStatus,clearResendOtpError,clearResendOtpSuccessMessage,resetResendOtpStatus,clearForgotPasswordError,clearForgotPasswordSuccessMessage,resetForgotPasswordStatus,clearResetPasswordError,clearResetPasswordSuccessMessage,resetResetPasswordStatus}=authSlice.actions
+export const {clearAuthSuccessMessage,clearAuthErrors,resetAuthStatus,clearSignupError,resetSignupStatus,clearLoginError,resetLoginStatus,clearOtpVerificationError,resetOtpVerificationStatus,clearResendOtpError,clearResendOtpSuccessMessage,resetResendOtpStatus,clearForgotPasswordError,clearForgotPasswordSuccessMessage,resetForgotPasswordStatus,clearResetPasswordError,clearResetPasswordSuccessMessage,resetResetPasswordStatus,resetGuestCheckoutStatus,clearGuestCheckoutError}=authSlice.actions
 
 export default authSlice.reducer
 

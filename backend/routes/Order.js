@@ -1,5 +1,7 @@
 const express = require('express')
 const orderController = require("../controllers/Order")
+const invoiceController = require("../controllers/Invoice")
+const { authMiddleware, adminMiddleware } = require("../middleware/auth")
 const router = express.Router()
 
 /**
@@ -46,7 +48,29 @@ const router = express.Router()
  *       500:
  *         description: Server error
  */
-router.post("/", orderController.create)
+router.post("/", authMiddleware, orderController.create)
+
+/**
+ * @swagger
+ * /orders/analytics:
+ *   get:
+ *     summary: Get sales analytics (Admin only)
+ *     tags: [Orders]
+ *     security:
+ *       - cookieAuth: []
+ */
+router.get("/analytics", adminMiddleware, orderController.getAnalytics)
+
+/**
+ * @swagger
+ * /orders/{id}/invoice:
+ *   get:
+ *     summary: Download invoice PDF for an order
+ *     tags: [Orders]
+ *     security:
+ *       - cookieAuth: []
+ */
+router.get("/:id/invoice", authMiddleware, invoiceController.generateInvoice)
 
 /**
  * @swagger
@@ -70,7 +94,7 @@ router.post("/", orderController.create)
  *       500:
  *         description: Server error
  */
-router.get("/", orderController.getAll)
+router.get("/", adminMiddleware, orderController.getAll)
 
 /**
  * @swagger
@@ -141,6 +165,6 @@ router.get("/user/:id", orderController.getByUserId)
  *       500:
  *         description: Server error
  */
-router.patch("/:id", orderController.updateById)
+router.patch("/:id", adminMiddleware, orderController.updateById)
 
 module.exports = router
