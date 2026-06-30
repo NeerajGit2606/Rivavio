@@ -1,5 +1,8 @@
 const { Schema, default: mongoose } = require("mongoose")
+const { parse } = require("csv-parse/sync")
 const Product = require("../models/Product")
+const Category = require("../models/Category")
+const Brand = require("../models/Brand")
 
 exports.create = async (req, res) => {
     try {
@@ -124,5 +127,100 @@ exports.deleteById = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error deleting product, please try again later' })
+    }
+}
+
+// Expected CSV columns: title,description,price,discountPercentage,category,brand,stockQuantity,thumbnail,images
+// category/brand are matched by name (case-insensitive); images is a "|" separated list of URLs
+exports.bulkUpload = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No CSV file uploaded' })
+        }
+
+        const records = parse(req.file.buffer.toString('utf-8'), {
+            columns: true,
+            skip_empty_lines: true,
+            trim: true
+        })
+
+        if (!records.length) {
+            return res.status(400).json({ message: 'CSV file is empty' })
+        }
+
+        const categories = await Category.find({})
+        const brands = await Brand.find({})
+        const categoryMap = new Map(categories.filter(c => c.name).map(c => [c.name.toLowerCase(), c._id]))
+        const brandMap = new Map(brands.filter(b => b.name).map(b => [b.name.toLowerCase(), b._id]))
+
+        const errors = []
+        const toInsert = []
+
+        records.forEach((row, index) => {
+            const rowNum = index + 2 // account for header row
+            const categoryId = categoryMap.get((row.category || '').toLowerCase())
+            const brandId = brandMap.get((row.brand || '').toLowerCase())
+
+            if (!row.title || !row.description || !row.price || !row.stockQuantity || !row.thumbnail) {
+                errors.push(`Row ${rowNum}: missing required field(s)`)
+                return
+            }
+            if (!categoryId) {
+                errors.push(`Row ${rowNum}: unknown category "${row.category}"`)
+                return
+            }
+            if (!brandId) {
+                errors.push(`Row ${rowNum}: unknown brand "${row.brand}"`)
+                return
+            }
+
+            toInsert.push({
+                title: row.title,
+                description: row.description,
+                price: Number(row.price),
+                discountPercentage: Number(row.discountPercentage) || 0,
+                category: categoryId,
+                brand: brandId,
+                stockQuantity: Number(row.stockQuantity),
+                thumbnail: row.thumbnail,
+                images: row.images ? row.images.split('|').map(s => s.trim()).filter(Boolean) : [row.thumbnail]
+            })
+        })
+
+        if (toInsert.length) {
+            await Product.insertMany(toInsert)
+        }
+
+        res.status(201).json({
+            inserted: toInsert.length,
+            failed: errors.length,
+            errors
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error processing bulk upload, please check the CSV format and try again' })
+    }
+}
+
+exports.getRecommendations = async (req, res) => {
+    try {
+        const { id } = req.params
+        const product = await Product.findById(id)
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' })
+        }
+
+        const recommendations = await Product.find({
+            _id: { $ne: id },
+            category: product.category,
+            isDeleted: false
+        }).populate("brand").limit(8)
+
+        res.status(200).json(recommendations)
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error fetching recommendations, please try again later' })
     }
 }

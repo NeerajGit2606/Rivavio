@@ -1,9 +1,16 @@
 const Review = require("../models/Review")
+const Order = require("../models/Order")
 
 exports.create = async (req, res) => {
     try {
-        console.log(req.body);
-        const created = new Review(req.body)
+        // Verified purchase badge: only true if this user has an order containing this product
+        const matchingOrder = await Order.findOne({
+            user: req.body.user,
+            status: { $ne: 'Cancelled' },
+            item: { $elemMatch: { 'product._id': req.body.product } }
+        })
+
+        const created = new Review({ ...req.body, isVerifiedPurchase: !!matchingOrder })
         await created.save()
         await created.populate({ path: 'user', select: '-password' });
         res.status(201).json(created)

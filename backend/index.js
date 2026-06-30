@@ -16,9 +16,12 @@ const addressRoutes = require('./routes/Address')
 const reviewRoutes = require("./routes/Review")
 const wishlistRoutes = require("./routes/Wishlist")
 const paymentRoutes = require("./routes/Payment")
+const couponRoutes = require("./routes/Coupon")
 const { connectToDB } = require("./database/db")
 const swaggerUi = require('swagger-ui-express')
 const swaggerSpec = require('./swagger')
+const { passport } = require("./config/passport")
+const { startAbandonedCartCron } = require("./utils/AbandonedCartCron")
 
 const server = express()
 connectToDB()
@@ -32,6 +35,7 @@ server.use(cors({
 server.use(express.json())
 server.use(cookieParser())
 server.use(morgan("tiny"))
+server.use(passport.initialize())
 
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 server.use("/api/auth", authRoutes)
@@ -45,10 +49,13 @@ server.use("/api/address", addressRoutes)
 server.use("/api/reviews", reviewRoutes)
 server.use("/api/wishlist", wishlistRoutes)
 server.use("/api/payment", paymentRoutes)
+server.use("/api/coupons", couponRoutes)
 
 server.get("/", (req, res) => {
     res.status(200).json({ message: 'running' })
 })
+
+startAbandonedCartCron()
 
 server.listen(8000, () => {
     console.log('✅ server [STARTED] ~ http://localhost:8000');

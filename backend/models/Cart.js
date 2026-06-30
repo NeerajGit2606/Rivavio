@@ -15,7 +15,11 @@ const cartSchema=new Schema({
     quantity:{
         type:Number,
         default:1,
+    },
+    reminderSent:{
+        type:Boolean,
+        default:false
     }
-},{versionKey:false})
+},{versionKey:false,timestamps:true})
 
 module.exports=mongoose.model("Cart",cartSchema)

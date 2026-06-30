@@ -47,12 +47,16 @@ export const Navbar = ({ isProductList = false }) => {
   const userLinks = loggedInUser?.isAdmin ? [
     { label: 'Dashboard', to: '/admin/dashboard' },
     { label: 'Add Product', to: '/admin/add-product' },
+    { label: 'Bulk Upload', to: '/admin/bulk-upload' },
     { label: 'Orders', to: '/admin/orders' },
+    { label: 'Analytics', to: '/admin/analytics' },
+    { label: 'Coupons', to: '/admin/coupons' },
     { label: 'Logout', to: '/logout' },
   ] : [
     { label: 'My Account', to: '/profile' },
     { label: 'My Orders', to: '/orders' },
     { label: 'Wishlist', to: '/wishlist' },
+    { label: 'Compare', to: '/compare' },
     { label: 'Logout', to: '/logout' },
   ];
 

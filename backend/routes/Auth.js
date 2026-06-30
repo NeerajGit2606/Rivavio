@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/Auth");
 const { verifyToken } = require("../middleware/VerifyToken");
+const { passport, isGoogleAuthConfigured } = require("../config/passport");
 
 /**
  * @swagger
@@ -206,5 +207,57 @@ router.get("/check-auth", verifyToken, authController.checkAuth)
  *         description: Logout successful
  */
 router.get("/logout", authController.logout)
+
+/**
+ * @swagger
+ * /auth/guest-checkout:
+ *   post:
+ *     summary: Start checkout without a full account (creates a lightweight guest user)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Guest session started
+ */
+router.post("/guest-checkout", authController.guestCheckout)
+
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Start Google OAuth sign-in
+ *     tags: [Auth]
+ */
+router.get("/google", (req, res, next) => {
+    if (!isGoogleAuthConfigured) {
+        return res.status(503).json({ message: "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to the backend .env file." })
+    }
+    passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next)
+})
+
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Google OAuth callback
+ *     tags: [Auth]
+ */
+router.get("/google/callback", (req, res, next) => {
+    if (!isGoogleAuthConfigured) {
+        return res.redirect(`${process.env.ORIGIN || 'http://localhost:3000'}/login`)
+    }
+    passport.authenticate('google', { session: false, failureRedirect: `${process.env.ORIGIN || 'http://localhost:3000'}/login` })(req, res, next)
+}, authController.googleCallback)
 
 module.exports = router

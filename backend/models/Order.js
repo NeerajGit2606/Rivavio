@@ -17,7 +17,7 @@ const orderSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Dispatched', 'Out for delivery', 'Cancelled'],
+        enum: ['Pending', 'Dispatched', 'Out for delivery', 'Delivered', 'Cancelled'],
         default: 'Pending'
     },
     paymentMode: {
@@ -37,6 +37,30 @@ const orderSchema = new Schema({
     total: {
         type: Number,
         required: true
+    },
+    couponCode: {
+        type: String,
+        default: null
+    },
+    discountAmount: {
+        type: Number,
+        default: 0
+    },
+    walletAmountUsed: {
+        type: Number,
+        default: 0
+    },
+    loyaltyPointsEarned: {
+        type: Number,
+        default: 0
+    },
+    statusHistory: {
+        type: [{
+            status: { type: String },
+            note: { type: String },
+            updatedAt: { type: Date, default: Date.now }
+        }],
+        default: []
     },
     createdAt: {
         type: Date,

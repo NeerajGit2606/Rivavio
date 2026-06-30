@@ -22,6 +22,14 @@ const reviewSchema = new Schema({
         type: String,
         required: true
     },
+    images: {
+        type: [String],
+        default: []
+    },
+    isVerifiedPurchase: {
+        type: Boolean,
+        default: false
+    },
     isApproved: {
         type: Boolean,
         default: false

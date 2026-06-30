@@ -10,15 +10,17 @@ import { Logout } from './features/auth/components/Logout';
 import { Protected } from './features/auth/components/Protected';
 import { useAuthCheck } from "./hooks/useAuth/useAuthCheck";
 import { useFetchLoggedInUserDetails } from "./hooks/useAuth/useFetchLoggedInUserDetails";
-import { 
-  AddProductPage, AdminOrdersPage, CartPage, CheckoutPage, 
-  ForgotPasswordPage, HomePage, LoginPage, OrderSuccessPage, 
-  OtpVerificationPage, ProductDetailsPage, ProductUpdatePage, 
-  ResetPasswordPage, SignupPage, UserOrdersPage, UserProfilePage, 
-  WishlistPage 
+import {
+  AddProductPage, AdminAnalyticsPage, AdminBulkUploadPage, AdminCouponsPage,
+  AdminOrdersPage, CartPage, CheckoutPage, ComparePage,
+  ForgotPasswordPage, HomePage, LoginPage, OrderSuccessPage,
+  OtpVerificationPage, ProductDetailsPage, ProductsPage, ProductUpdatePage,
+  ResetPasswordPage, SharedWishlistPage, SignupPage, UserOrdersPage, UserProfilePage,
+  WishlistPage
 } from './pages';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { TawkToWidget } from './features/support/TawkToWidget';
 
 
 function App() {
@@ -40,8 +42,15 @@ function App() {
         <Route path='/forgot-password' element={<ForgotPasswordPage />} />
         <Route path='/reset-password/:userId/:passwordResetToken' element={<ResetPasswordPage />} />
         
+        {/* ===== PUBLIC PRODUCTS LISTING (Shop) ===== */}
+        <Route path='/products' element={<ProductsPage />} />  {/* ✅ PUBLIC */}
+
         {/* ===== PUBLIC PRODUCT DETAILS (Bina Login Ke) ===== */}
         <Route path='/product-details/:id' element={<ProductDetailsPage />} />  {/* ✅ PUBLIC */}
+
+        {/* ===== PUBLIC: shared wishlist + compare ===== */}
+        <Route path='/wishlist/shared/:userId' element={<SharedWishlistPage />} />
+        <Route path='/compare' element={<ComparePage />} />
 
         {/* ===== LOGOUT ===== */}
         <Route path='/logout' element={<Protected><Logout /></Protected>} />
@@ -53,7 +62,10 @@ function App() {
               <Route path='/admin/dashboard' element={<Protected><AdminDashboardPage /></Protected>} />
               <Route path='/admin/product-update/:id' element={<Protected><ProductUpdatePage /></Protected>} />
               <Route path='/admin/add-product' element={<Protected><AddProductPage /></Protected>} />
+              <Route path='/admin/bulk-upload' element={<Protected><AdminBulkUploadPage /></Protected>} />
               <Route path='/admin/orders' element={<Protected><AdminOrdersPage /></Protected>} />
+              <Route path='/admin/analytics' element={<Protected><AdminAnalyticsPage /></Protected>} />
+              <Route path='/admin/coupons' element={<Protected><AdminCouponsPage /></Protected>} />
               <Route path='*' element={<Navigate to={'/admin/dashboard'} />} />
             </>
           ) : (
@@ -75,7 +87,14 @@ function App() {
     )
   )
 
-  return isAuthChecked ? <RouterProvider router={routes} /> : "";
+  if (!isAuthChecked) return ""
+
+  return (
+    <>
+      <RouterProvider router={routes} />
+      <TawkToWidget />
+    </>
+  )
 }
 
 export default App;

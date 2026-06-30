@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import { createOrder, getAllOrders, getOrderByUserId, updateOrderById } from './OrderApi'
+import { createOrder, getAllOrders, getOrderAnalytics, getOrderByUserId, updateOrderById } from './OrderApi'
 
 
 const initialState={
@@ -9,7 +9,9 @@ const initialState={
     orders:[],
     currentOrder:null,
     errors:null,
-    successMessage:null
+    successMessage:null,
+    analytics:null,
+    analyticsStatus:"idle"
 }
 
 export const createOrderAsync=createAsyncThunk("orders/createOrderAsync",async(order)=>{
@@ -30,6 +32,11 @@ export const getOrderByUserIdAsync=createAsyncThunk("orders/getOrderByUserIdAsyn
 export const updateOrderByIdAsync=createAsyncThunk("orders/updateOrderByIdAsync",async(update)=>{
     const updatedOrder=await updateOrderById(update)
     return updatedOrder
+})
+
+export const getOrderAnalyticsAsync=createAsyncThunk("orders/getOrderAnalyticsAsync",async()=>{
+    const analytics=await getOrderAnalytics()
+    return analytics
 })
 
 const orderSlice=createSlice({
@@ -97,6 +104,18 @@ const orderSlice=createSlice({
                 state.orderUpdateStatus='rejected'
                 state.errors=action.error
             })
+
+            .addCase(getOrderAnalyticsAsync.pending,(state)=>{
+                state.analyticsStatus='pending'
+            })
+            .addCase(getOrderAnalyticsAsync.fulfilled,(state,action)=>{
+                state.analyticsStatus='fulfilled'
+                state.analytics=action.payload
+            })
+            .addCase(getOrderAnalyticsAsync.rejected,(state,action)=>{
+                state.analyticsStatus='rejected'
+                state.errors=action.error
+            })
     }
 })
 
@@ -111,5 +130,7 @@ export const selectOrdersSuccessMessage=(state)=>state.OrderSlice.successMessage
 export const selectCurrentOrder=(state)=>state.OrderSlice.currentOrder
 export const selectOrderUpdateStatus=(state)=>state.OrderSlice.orderUpdateStatus
 export const selectOrderFetchStatus=(state)=>state.OrderSlice.orderFetchStatus
+export const selectOrderAnalytics=(state)=>state.OrderSlice.analytics
+export const selectOrderAnalyticsStatus=(state)=>state.OrderSlice.analyticsStatus
 
 export default orderSlice.reducer

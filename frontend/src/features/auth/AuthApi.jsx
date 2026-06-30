@@ -64,3 +64,11 @@ export const logout=async()=>{
         throw error.response.data
     }
 }
+export const guestCheckout=async(cred)=>{
+    try {
+        const res=await axiosi.post("auth/guest-checkout",cred)
+        return res.data
+    } catch (error) {
+        throw error.response.data
+    }
+}

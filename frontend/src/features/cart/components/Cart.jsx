@@ -7,11 +7,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SHIPPING, TAXES } from '../../../constants'
 import { toast } from 'react-toastify'
 import {motion} from 'framer-motion'
+import { formatPrice } from '../../../utils/formatPrice'
 
-export const Cart = ({checkout}) => {
+export const Cart = ({checkout, discountAmount = 0, couponCode = '', walletAmountUsed = 0}) => {
     const items=useSelector(selectCartItems)
     const subtotal=items.reduce((acc,item)=>item.product.price*item.quantity+acc,0)
     const totalItems=items.reduce((acc,item)=>acc+item.quantity,0)
+    const grandTotal=Math.max(0, subtotal+SHIPPING+TAXES-discountAmount-walletAmountUsed)
     const navigate=useNavigate()
     const theme=useTheme()
     const is900=useMediaQuery(theme.breakpoints.down(900))
@@ -70,26 +72,40 @@ export const Cart = ({checkout}) => {
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Subtotal</Typography>
-                                <Typography>${subtotal}</Typography>
+                                <Typography>{formatPrice(subtotal)}</Typography>
                             </Stack>
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Shipping</Typography>
-                                <Typography>${SHIPPING}</Typography>
+                                <Typography>{formatPrice(SHIPPING)}</Typography>
                             </Stack>
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Taxes</Typography>
-                                <Typography>${TAXES}</Typography> 
+                                <Typography>{formatPrice(TAXES)}</Typography>
                             </Stack>
+
+                            {discountAmount > 0 && (
+                                <Stack flexDirection={'row'} justifyContent={'space-between'}>
+                                    <Typography color='success.main'>Coupon ({couponCode})</Typography>
+                                    <Typography color='success.main'>-{formatPrice(discountAmount)}</Typography>
+                                </Stack>
+                            )}
+
+                            {walletAmountUsed > 0 && (
+                                <Stack flexDirection={'row'} justifyContent={'space-between'}>
+                                    <Typography color='success.main'>Wallet used</Typography>
+                                    <Typography color='success.main'>-{formatPrice(walletAmountUsed)}</Typography>
+                                </Stack>
+                            )}
 
                             <hr/>
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Total</Typography>
-                                <Typography>${subtotal+SHIPPING+TAXES}</Typography>
+                                <Typography>{formatPrice(grandTotal)}</Typography>
                             </Stack>
-                            
+
 
                         </Stack>
                     ):(
@@ -101,7 +117,7 @@ export const Cart = ({checkout}) => {
                             </Stack>
 
                             <Stack>
-                                <Typography variant='h6' fontWeight={500}>${subtotal}</Typography>
+                                <Typography variant='h6' fontWeight={500}>{formatPrice(subtotal)}</Typography>
                             </Stack>
                         </>
                     )
