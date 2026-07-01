@@ -8,4 +8,6 @@ services:
     environment:
       - PORT=8000
       - NODE_ENV=production
+    env_file:
+      - ./backend/.env
     restart: unless-stopped

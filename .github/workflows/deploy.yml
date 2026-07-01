@@ -30,7 +30,7 @@ jobs:
           REACT_APP_PROD_API_URL: /api
         run: CI=false npm run build
 
-      - name: Deploy to EC2
+      - name: Deploy frontend build to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -40,7 +40,16 @@ jobs:
           target: "/tmp/frontend"
           strip_components: 2
 
-      - name: Reload Nginx
+      - name: Deploy nginx config to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "nginx.conf"
+          target: "/tmp/"
+
+      - name: Apply frontend + nginx config on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -48,7 +57,10 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             sudo cp -r /tmp/frontend/* /usr/share/nginx/html/
-            sudo systemctl reload nginx
+            sudo cp /tmp/nginx.conf /etc/nginx/sites-available/rivavio
+            sudo ln -sf /etc/nginx/sites-available/rivavio /etc/nginx/sites-enabled/rivavio
+            sudo rm -f /etc/nginx/sites-enabled/default
+            sudo nginx -t && sudo systemctl reload nginx
 
   deploy-backend:
     name: Deploy Backend
@@ -70,3 +82,5 @@ jobs:
             docker-compose down
             docker build -t trovia-backend ./backend
             docker-compose up -d
+            sleep 3
+            docker-compose ps
