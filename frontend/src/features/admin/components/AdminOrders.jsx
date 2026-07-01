@@ -127,10 +127,10 @@ export const AdminOrders = () => {
                     <TableCell align="right">{formatPrice(order.total)}</TableCell>
                     <TableCell align="right">
                       <Stack>
-                        <Typography>{order.address[0].street}</Typography>
-                        <Typography>{order.address[0].city}</Typography>
-                        <Typography>{order.address[0].state}</Typography>
-                        <Typography>{order.address[0].postalCode}</Typography>
+                        <Typography>{order.address?.[0]?.street}</Typography>
+                        <Typography>{order.address?.[0]?.city}</Typography>
+                        <Typography>{order.address?.[0]?.state}</Typography>
+                        <Typography>{order.address?.[0]?.postalCode}</Typography>
                       </Stack>
                     </TableCell>
                     <TableCell align="right">{order.paymentMode}</TableCell>
