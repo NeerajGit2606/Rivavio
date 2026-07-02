@@ -1,7 +1,7 @@
 import { Box, Divider, Grid, IconButton, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { Stack } from '@mui/material'
 import React from 'react'
-import { QRCodePng, appStorePng, googlePlayPng, facebookPng, instagramPng, twitterPng, linkedinPng } from '../../assets'
+import { facebookPng, instagramPng, twitterPng, linkedinPng } from '../../assets'
 import SendIcon from '@mui/icons-material/Send';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -123,28 +123,6 @@ export const Footer = () => {
                         </Grid>
                     ))}
 
-                    {/* App download */}
-                    <Grid item xs={12} sm={6} md={3}>
-                        <Typography variant="body1" fontWeight={700} color="white" mb={2} fontSize="13px" textTransform="uppercase" letterSpacing="0.5px">
-                            Download App
-                        </Typography>
-                        <Typography variant="body2" color="#999" mb={1.5} fontSize="12px">
-                            Save $3 with App — New Users Only
-                        </Typography>
-                        <Stack direction="row" gap={1.5} alignItems="center">
-                            <Box sx={{ width: 80, height: 80, bgcolor: 'white', p: 0.5, borderRadius: 1 }}>
-                                <img src={QRCodePng} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="QR" />
-                            </Box>
-                            <Stack gap={1}>
-                                <Box sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}>
-                                    <img src={googlePlayPng} alt="Google Play" style={{ width: 110, objectFit: 'contain' }} />
-                                </Box>
-                                <Box sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}>
-                                    <img src={appStorePng} alt="App Store" style={{ width: 110, objectFit: 'contain' }} />
-                                </Box>
-                            </Stack>
-                        </Stack>
-                    </Grid>
                 </Grid>
             </Box>
 
