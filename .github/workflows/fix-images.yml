@@ -1,0 +1,34 @@
+name: Fix Product Images (run once)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix-images:
+    name: Update product image URLs in MongoDB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Copy fix script to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "fix_images.js"
+          target: "/home/ec2-user/"
+
+      - name: Run fix inside backend container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd ~/Trovia
+            CONTAINER=$(docker-compose ps -q backend)
+            docker cp /home/ec2-user/fix_images.js $CONTAINER:/app/fix_images.js
+            docker-compose exec -T backend node fix_images.js
