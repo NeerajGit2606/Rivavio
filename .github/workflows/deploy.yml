@@ -57,9 +57,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             sudo cp -r /tmp/frontend/* /usr/share/nginx/html/
-            sudo cp /tmp/nginx.conf /etc/nginx/sites-available/rivavio
-            sudo ln -sf /etc/nginx/sites-available/rivavio /etc/nginx/sites-enabled/rivavio
-            sudo rm -f /etc/nginx/sites-enabled/default
+            sudo cp /tmp/nginx.conf /etc/nginx/conf.d/rivavio.conf
             sudo nginx -t && sudo systemctl reload nginx
 
   deploy-backend:
