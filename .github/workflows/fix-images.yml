@@ -18,10 +18,10 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "cleanup_samples.js,fix_images.js"
+          source: "cleanup_samples.js,restore_images.js"
           target: "/home/ec2-user/"
 
-      - name: Run cleanup + image fix inside backend container
+      - name: Run cleanup + restore images inside backend container
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -32,8 +32,8 @@ jobs:
             git pull origin main
             CONTAINER=$(docker-compose ps -q backend)
             docker cp /home/ec2-user/cleanup_samples.js $CONTAINER:/app/cleanup_samples.js
-            docker cp /home/ec2-user/fix_images.js $CONTAINER:/app/fix_images.js
+            docker cp /home/ec2-user/restore_images.js $CONTAINER:/app/restore_images.js
             echo "--- Step 1: Delete sample products ---"
             docker-compose exec -T backend node cleanup_samples.js
-            echo "--- Step 2: Fix product image URLs ---"
-            docker-compose exec -T backend node fix_images.js
+            echo "--- Step 2: Restore proper product images from dummyjson ---"
+            docker-compose exec -T backend node restore_images.js
