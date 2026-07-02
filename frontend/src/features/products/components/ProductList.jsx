@@ -1,6 +1,6 @@
 import {
     Box, Chip, FormControl, Grid, IconButton, InputAdornment, InputLabel,
-    MenuItem, Select, Slider, Stack, TextField, Typography,
+    LinearProgress, MenuItem, Select, Slider, Stack, TextField, Typography,
     useMediaQuery, useTheme
 } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
@@ -280,12 +280,16 @@ export const ProductList = () => {
             </motion.div>
 
             {/* Main content */}
-            {productFetchStatus === 'pending' ? (
+            {productFetchStatus === 'pending' && products.length === 0 ? (
                 <Stack width={is500 ? "35vh" : '25rem'} height={'calc(100vh - 4rem)'} justifyContent={'center'} mx="auto">
                     <Lottie animationData={loadingAnimation} />
                 </Stack>
             ) : (
                 <Box>
+                    {/* Subtle top progress bar during filter/sort re-fetch */}
+                    {productFetchStatus === 'pending' && (
+                        <LinearProgress sx={{ height: 2, bgcolor: '#eee', '& .MuiLinearProgress-bar': { bgcolor: '#0F1111' } }} />
+                    )}
                     {/* Trust Features Strip */}
                     <Box sx={{ bgcolor: '#F7F7F7', borderTop: '1px solid #E8E8E1', borderBottom: '1px solid #E8E8E1', py: 2.5 }}>
                         <Stack
@@ -367,7 +371,9 @@ export const ProductList = () => {
                         </Stack>
 
                         {/* Product Grid */}
-                        <Grid container spacing={is600 ? 1.5 : 2.5} justifyContent="flex-start">
+                        <Grid container spacing={is600 ? 1.5 : 2.5} justifyContent="flex-start"
+                            sx={{ opacity: productFetchStatus === 'pending' ? 0.5 : 1, transition: 'opacity 0.2s' }}
+                        >
                             {products.map((product) => (
                                 <Grid item key={product._id}>
                                     <ProductCard
