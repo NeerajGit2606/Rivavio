@@ -250,9 +250,9 @@ export const HomePage = () => {
                 >
                   <div className="product-image">
                     <img
-                      src={product.thumbnail || 'https://via.placeholder.com/400x400/f8f8f8/ccc?text=No+Image'}
+                      src={product.thumbnail}
                       alt={product.title}
-                      onError={e => { e.target.src = 'https://via.placeholder.com/400x400/f8f8f8/ccc?text=No+Image' }}
+                      onError={e => { e.target.onerror = null; e.target.src = '/images/products/product-1.jpg' }}
                     />
                     <div className="product-overlay">
                       <button onClick={e => { e.stopPropagation(); setPopup(product) }}>QUICK VIEW</button>
@@ -370,9 +370,9 @@ export const HomePage = () => {
               <button className="popup-close" onClick={() => setPopup(null)}>✕</button>
               <div className="popup-image">
                 <img
-                  src={popup.thumbnail || 'https://via.placeholder.com/400x400/f8f8f8/ccc?text=No+Image'}
+                  src={popup.thumbnail}
                   alt={popup.title}
-                  onError={e => { e.target.src = 'https://via.placeholder.com/400x400/f8f8f8/ccc?text=No+Image' }}
+                  onError={e => { e.target.onerror = null; e.target.src = '/images/products/product-1.jpg' }}
                 />
               </div>
               <div className="popup-content">
