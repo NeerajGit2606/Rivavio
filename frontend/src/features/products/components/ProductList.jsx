@@ -74,6 +74,10 @@ export const ProductList = () => {
         const categoryParam = searchParams.get('category')
         const brandParam = searchParams.get('brand')
         setFilters(prev => {
+            const prevCategory = prev.category?.[0] ?? null
+            const prevBrand = prev.brand?.[0] ?? null
+            // Return same reference if nothing changed — avoids extra fetch on mount
+            if (prevCategory === categoryParam && prevBrand === brandParam) return prev
             const next = { ...prev }
             if (categoryParam) next.category = [categoryParam]
             else delete next.category
@@ -147,7 +151,6 @@ export const ProductList = () => {
     const handleFilterClose = () => { dispatch(toggleFilters()) }
 
     useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }) }, [])
-    useEffect(() => { setPage(1) }, [totalResults])
 
     useEffect(() => {
         const finalFilters = { ...filters }
