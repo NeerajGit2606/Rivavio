@@ -21,6 +21,8 @@ import {
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { TawkToWidget } from './features/support/TawkToWidget';
+import { ContactPage } from './pages/ContactPage';
+import { StaticPage } from './pages/StaticPage';
 
 
 function App() {
@@ -51,6 +53,19 @@ function App() {
         {/* ===== PUBLIC: shared wishlist + compare ===== */}
         <Route path='/wishlist/shared/:userId' element={<SharedWishlistPage />} />
         <Route path='/compare' element={<ComparePage />} />
+
+        {/* ===== PUBLIC STATIC PAGES ===== */}
+        <Route path='/contact' element={<ContactPage />} />
+        <Route path='/about' element={<StaticPage pageKey="about" />} />
+        <Route path='/team' element={<StaticPage pageKey="team" />} />
+        <Route path='/careers' element={<StaticPage pageKey="careers" />} />
+        <Route path='/help' element={<StaticPage pageKey="help" />} />
+        <Route path='/returns' element={<StaticPage pageKey="returns" />} />
+        <Route path='/privacy-policy' element={<StaticPage pageKey="privacy" />} />
+        <Route path='/terms' element={<StaticPage pageKey="terms" />} />
+        <Route path='/cookie-policy' element={<StaticPage pageKey="cookies" />} />
+        <Route path='/faq' element={<StaticPage pageKey="faq" />} />
+        <Route path='/track-order' element={<StaticPage pageKey="track-order" />} />
 
         {/* ===== LOGOUT ===== */}
         <Route path='/logout' element={<Protected><Logout /></Protected>} />

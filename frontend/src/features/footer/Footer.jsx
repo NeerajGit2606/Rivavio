@@ -11,10 +11,30 @@ export const Footer = () => {
     const is768 = useMediaQuery(theme.breakpoints.down(768))
 
     const footerLinks = {
-        'Company': ['About Us', 'Our Team', 'Careers', 'Press'],
-        'Support': ['Help Center', 'Track Order', 'Returns', 'Contact Us'],
-        'Account': ['My Account', 'Orders', 'Wishlist', 'Cart'],
-        'Legal': ['Privacy Policy', 'Terms of Use', 'Cookie Policy', 'FAQ'],
+        'Company': [
+            { label: 'About Us', to: '/about' },
+            { label: 'Our Team', to: '/team' },
+            { label: 'Careers', to: '/careers' },
+            { label: 'Contact Us', to: '/contact' },
+        ],
+        'Support': [
+            { label: 'Help Center', to: '/help' },
+            { label: 'Track Order', to: '/orders' },
+            { label: 'Returns', to: '/returns' },
+            { label: 'FAQ', to: '/faq' },
+        ],
+        'Account': [
+            { label: 'My Account', to: '/profile' },
+            { label: 'Orders', to: '/orders' },
+            { label: 'Wishlist', to: '/wishlist' },
+            { label: 'Cart', to: '/cart' },
+        ],
+        'Legal': [
+            { label: 'Privacy Policy', to: '/privacy-policy' },
+            { label: 'Terms of Use', to: '/terms' },
+            { label: 'Cookie Policy', to: '/cookie-policy' },
+            { label: 'FAQ', to: '/faq' },
+        ],
     }
 
     return (
@@ -93,9 +113,9 @@ export const Footer = () => {
                             </Typography>
                             <Stack gap={1}>
                                 {links.map(link => (
-                                    <motion.div key={link} whileHover={{ x: 3 }}>
-                                        <Typography variant="body2" color="#999" sx={{ cursor: 'pointer', fontSize: '13px', '&:hover': { color: '#FF9900' } }}>
-                                            {link}
+                                    <motion.div key={link.label} whileHover={{ x: 3 }}>
+                                        <Typography component={Link} to={link.to} variant="body2" color="#999" sx={{ display: 'block', fontSize: '13px', textDecoration: 'none', '&:hover': { color: '#FF9900' } }}>
+                                            {link.label}
                                         </Typography>
                                     </motion.div>
                                 ))}
@@ -137,9 +157,13 @@ export const Footer = () => {
                         © Rivavio {new Date().getFullYear()}. All rights reserved.
                     </Typography>
                     <Stack direction="row" gap={3}>
-                        {['Privacy', 'Terms', 'Cookies'].map(item => (
-                            <Typography key={item} variant="body2" color="#666" fontSize="13px" sx={{ cursor: 'pointer', '&:hover': { color: '#FF9900' } }}>
-                                {item}
+                        {[
+                            { label: 'Privacy', to: '/privacy-policy' },
+                            { label: 'Terms', to: '/terms' },
+                            { label: 'Cookies', to: '/cookie-policy' },
+                        ].map(item => (
+                            <Typography key={item.label} component={Link} to={item.to} variant="body2" color="#666" fontSize="13px" sx={{ textDecoration: 'none', '&:hover': { color: '#FF9900' } }}>
+                                {item.label}
                             </Typography>
                         ))}
                     </Stack>

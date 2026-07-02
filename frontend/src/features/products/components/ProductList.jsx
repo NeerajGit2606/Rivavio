@@ -68,6 +68,21 @@ export const ProductList = () => {
         if (categoryParam) initial.category = [categoryParam]
         return initial
     })
+
+    // Sync filters when URL params change (e.g. navbar category click)
+    useEffect(() => {
+        const categoryParam = searchParams.get('category')
+        const brandParam = searchParams.get('brand')
+        setFilters(prev => {
+            const next = { ...prev }
+            if (categoryParam) next.category = [categoryParam]
+            else delete next.category
+            if (brandParam) next.brand = [brandParam]
+            else delete next.brand
+            return next
+        })
+        setPage(1)
+    }, [searchParams])
     const [page, setPage] = useState(1)
     const [sort, setSort] = useState(null)
     const theme = useTheme()
