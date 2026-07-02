@@ -23,6 +23,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { TawkToWidget } from './features/support/TawkToWidget';
 import { ContactPage } from './pages/ContactPage';
 import { StaticPage } from './pages/StaticPage';
+import { DeveloperPage } from './pages/DeveloperPage';
 
 
 function App() {
@@ -66,6 +67,7 @@ function App() {
         <Route path='/cookie-policy' element={<StaticPage pageKey="cookies" />} />
         <Route path='/faq' element={<StaticPage pageKey="faq" />} />
         <Route path='/track-order' element={<StaticPage pageKey="track-order" />} />
+        <Route path='/developer' element={<DeveloperPage />} />
 
         {/* ===== LOGOUT ===== */}
         <Route path='/logout' element={<Protected><Logout /></Protected>} />
