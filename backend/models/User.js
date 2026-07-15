@@ -47,6 +47,16 @@ const userSchema=new Schema({
     wishlistShareId:{
         type:String,
         default:null
+    },
+    businessId:{
+        type:Schema.Types.ObjectId,
+        ref:"Business",
+        default:null
+    },
+    role:{
+        type:String,
+        enum:["owner","staff"],
+        default:null
     }
 },{timestamps:true})
 
