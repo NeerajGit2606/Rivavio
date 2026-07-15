@@ -1,0 +1,18 @@
+{
+  "name": "postgres-rls-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone demo: Postgres Row-Level Security as the DB-native alternative to the app-level tenant isolation built in backend/middleware/tenant.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
