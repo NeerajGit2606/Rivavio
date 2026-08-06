@@ -57,6 +57,9 @@ export const Navbar = ({ isProductList = false }) => {
     { label: 'My Orders', to: '/orders' },
     { label: 'Wishlist', to: '/wishlist' },
     { label: 'Compare', to: '/compare' },
+    loggedInUser?.businessId
+      ? { label: 'My Business', to: '/business/dashboard' }
+      : { label: 'Start a Business', to: '/business/create' },
     { label: 'Logout', to: '/logout' },
   ];
 

@@ -129,7 +129,51 @@ remove the owner's own id → 400.
 
 ---
 
-## 6. Postgres RLS Demo (isolated side-project)
+## 6. Frontend UI for the SaaS Module
+
+**What:** React screens for everything that was previously curl/Jest-only. New API layer
+`frontend/src/features/business/BusinessApi.jsx` (one function per `/api/saas/*` route). Pages:
+`CreateBusinessPage` (shown when a logged-in user has no `businessId` yet), `BusinessDashboardPage`
+(business info + nav cards), `BusinessBillsPage` (bills table + `RecordPaymentForm`),
+`CreateBillPage` (full jewelry pricing form), `BillDetailsPage` (pricing breakdown + that bill's
+ledger trail), `BusinessLedgerPage` (whole-business ledger), `BusinessStaffPage` (team table;
+invite form + remove button only rendered for `role==="owner"`). Routing added to `App.js` as a
+new conditional block, independent of the existing `isAdmin` ternary. Navbar gets a "Start a
+Business" / "My Business" link depending on `loggedInUser.businessId`.
+
+**Why:** Makes the SaaS module an actual demonstrable, click-through product instead of an API
+only reachable via curl — the point of this whole exercise being a portfolio piece, not just a
+passed test suite.
+
+**Files:** `frontend/src/features/business/BusinessApi.jsx`, `frontend/src/features/business/
+components/*.jsx` (CreateBusinessForm, BusinessDashboard, BusinessBills, BillsTable,
+RecordPaymentForm, CreateBillForm, BillDetails, BusinessLedger, BusinessStaff, StaffTable,
+InviteStaffForm), `frontend/src/pages/{CreateBusinessPage,BusinessDashboardPage,
+BusinessBillsPage,CreateBillPage,BillDetailsPage,BusinessLedgerPage,BusinessStaffPage}.jsx`,
+`frontend/src/App.js`, `frontend/src/features/navigation/components/Navbar.jsx`.
+
+**Key design notes:**
+- Amounts are stored/returned in paise everywhere (`Bill`/`LedgerEntry`); display via
+  `formatPrice(amountPaise / 100)`. The one reverse conversion is the payment-amount field
+  (rupees entered → `× 100` before calling `POST /payments`, since that endpoint requires integer
+  `amountPaise`).
+- `POST /payments` is phone+amount, not per-bill (FIFO auto-allocates across that phone number's
+  open bills) — so "record payment" lives on the Bills list page, not inside a single bill.
+- No Redux slice for this module — plain component state + direct async calls, matching the
+  existing `AdminCoupons`/`CouponApi` pattern for CRUD-style admin screens elsewhere in the app.
+- The staff-only invite/remove UI is a display nicety (`role==="owner"` check in
+  `BusinessStaff.jsx`), not a security boundary — the backend's `ownerMiddleware` is the real
+  enforcement, same as everywhere else in this project.
+
+**Manual test:** `cd frontend && npm start`, then: sign up a fresh user → "Start a Business" →
+create business → land on dashboard → New Bill → fill pricing form → confirm the breakdown on the
+bill's detail page matches a hand calculation → on the Bills page, record a payment by phone
+number → confirm the bill's status flips and a credit entry appears in its ledger trail → Staff
+page as owner → invite a second test user → confirm they only see a read-only team table.
+
+---
+
+## 7. Postgres RLS Demo (isolated side-project)
 
 **What:** A standalone `postgres-rls-demo/` directory (Docker Postgres + `pg` + Jest) that
 re-implements tenant isolation using Postgres Row-Level Security instead of application-level

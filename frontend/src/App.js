@@ -12,7 +12,7 @@ import { useAuthCheck } from "./hooks/useAuth/useAuthCheck";
 import { useFetchLoggedInUserDetails } from "./hooks/useAuth/useFetchLoggedInUserDetails";
 import {
   AddProductPage, AdminAnalyticsPage, AdminBulkUploadPage, AdminCouponsPage,
-  AdminOrdersPage, CartPage, CheckoutPage, ComparePage,
+  AdminOrdersPage, BillDetailsPage, BusinessDashboardPage, BusinessBillsPage, BusinessLedgerPage, BusinessStaffPage, CartPage, CheckoutPage, ComparePage, CreateBillPage, CreateBusinessPage,
   ForgotPasswordPage, HomePage, LoginPage, OrderSuccessPage,
   OtpVerificationPage, ProductDetailsPage, ProductsPage, ProductUpdatePage,
   ResetPasswordPage, SharedWishlistPage, SignupPage, UserOrdersPage, UserProfilePage,
@@ -97,6 +97,22 @@ function App() {
             </>
           )
         }
+
+        {/* ===== SAAS: BUSINESS MODULE (independent of the isAdmin branch above) ===== */}
+        {loggedInUser && !loggedInUser?.isAdmin && (
+          loggedInUser?.businessId ? (
+            <>
+              <Route path='/business/dashboard' element={<Protected><BusinessDashboardPage /></Protected>} />
+              <Route path='/business/bills' element={<Protected><BusinessBillsPage /></Protected>} />
+              <Route path='/business/bills/new' element={<Protected><CreateBillPage /></Protected>} />
+              <Route path='/business/bills/:id' element={<Protected><BillDetailsPage /></Protected>} />
+              <Route path='/business/ledger' element={<Protected><BusinessLedgerPage /></Protected>} />
+              <Route path='/business/staff' element={<Protected><BusinessStaffPage /></Protected>} />
+            </>
+          ) : (
+            <Route path='/business/create' element={<Protected><CreateBusinessPage /></Protected>} />
+          )
+        )}
 
         {/* ===== 404 NOT FOUND ===== */}
         <Route path='*' element={<NotFoundPage />} />

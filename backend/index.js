@@ -59,8 +59,9 @@ server.get("/", (req, res) => {
 
 startAbandonedCartCron()
 
-server.listen(8000, () => {
-    console.log('✅ server [STARTED] ~ http://localhost:8000');
-    console.log('✅ API Base: http://localhost:8000/api');
-    console.log('✅ Products: http://localhost:8000/api/products');
+const PORT = process.env.PORT || 8000
+server.listen(PORT, () => {
+    console.log(`✅ server [STARTED] ~ http://localhost:${PORT}`);
+    console.log(`✅ API Base: http://localhost:${PORT}/api`);
+    console.log(`✅ Products: http://localhost:${PORT}/api/products`);
 })

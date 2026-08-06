@@ -3,6 +3,13 @@ import { AdminOrdersPage } from "./AdminOrdersPage";
 import { AdminAnalyticsPage } from "./AdminAnalyticsPage";
 import { AdminBulkUploadPage } from "./AdminBulkUploadPage";
 import { AdminCouponsPage } from "./AdminCouponsPage";
+import { CreateBusinessPage } from "./CreateBusinessPage";
+import { BusinessDashboardPage } from "./BusinessDashboardPage";
+import { BusinessBillsPage } from "./BusinessBillsPage";
+import { CreateBillPage } from "./CreateBillPage";
+import { BillDetailsPage } from "./BillDetailsPage";
+import { BusinessLedgerPage } from "./BusinessLedgerPage";
+import { BusinessStaffPage } from "./BusinessStaffPage";
 import { CartPage } from "./CartPage";
 import { CheckoutPage } from "./CheckoutPage";
 import { ComparePage } from "./ComparePage";
@@ -40,6 +47,13 @@ export {
     AdminAnalyticsPage,
     AdminBulkUploadPage,
     AdminCouponsPage,
+    CreateBusinessPage,
+    BusinessDashboardPage,
+    BusinessBillsPage,
+    CreateBillPage,
+    BillDetailsPage,
+    BusinessLedgerPage,
+    BusinessStaffPage,
     WishlistPage,
     SharedWishlistPage,
     ComparePage,

@@ -96,8 +96,8 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 
 | Test Case | Verifies | Status |
 |---|---|---|
-| Owner invites existing user by email | inviteStaff happy path via HTTP | — |
-| GET /businesses/staff shows both members, no password field | listStaff via HTTP | — |
+| Owner invites existing user by email | inviteStaff happy path via HTTP | Pass |
+| GET /businesses/staff shows both members, no password field | listStaff via HTTP | Pass |
 | Staff member's own token tries to invite → 403 | ownerMiddleware enforced via HTTP | — |
 | Owner removes staff → listStaff shows only owner | removeStaff via HTTP | — |
 | Owner tries to remove own id → 400 | removeStaff guard via HTTP | — |
@@ -111,6 +111,20 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 | No tenant context set → zero rows | Fail-closed default when context missing | Pass |
 | Business A cannot INSERT under Business B's business_id | RLS WITH CHECK blocks cross-tenant writes | Pass |
 | Business A's UPDATE on B's row affects zero rows, no error | RLS USING silently filters cross-tenant updates | Pass |
+
+## Frontend UI (Manual · click-through in browser)
+
+| Test Case | Verifies | Status |
+|---|---|---|
+| Build compiles clean (`npx react-scripts build`) | No syntax/import errors across new files | Pass |
+| Fresh user sees "Start a Business" link, form creates business | CreateBusinessPage + JWT refresh via checkAuthAsync | — |
+| Dashboard shows business info + nav cards after creation | BusinessDashboardPage | — |
+| New Bill form creates a bill, redirects to its detail page | CreateBillPage → BillDetailsPage | — |
+| Bill detail pricing breakdown matches a hand calculation | Paise→rupee display conversion correctness | — |
+| Recording a payment by phone updates bill status + ledger | RecordPaymentForm → BusinessBillsPage/BillDetails refresh | — |
+| Ledger page lists all business entries, links back to bills | BusinessLedgerPage | — |
+| Owner sees invite form + remove buttons on Staff page | Role-gated UI (role==="owner") | — |
+| Staff-role user sees read-only team table, no invite/remove UI | Role-gated UI (non-owner) | — |
 
 ---
 

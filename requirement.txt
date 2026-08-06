@@ -1,0 +1,33 @@
+Job requirement vs Revivio me abhi tak jo bana hai
+✅ Achhe se covered (demonstrable hai)
+Requirement	Kaha hai
+JWT auth	Poora Revivio app se (login/signup/JWT cookie), plus SaaS module ke tenantMiddleware/ownerMiddleware
+Multi-tenant data isolation	businessId query-scoping (Mongo) + Postgres RLS demo — dono approaches dikha sakte ho, ye bahut strong hai
+Role-based access	Owner vs Staff (ownerMiddleware, invite/list/remove)
+Secure API design	Tenant-scoped queries, whitelisted JWT payload (sanitizeUser), transactional writes
+Database design (Postgres)	RLS demo — schema, policies, roles, migrations-as-SQL
+State management	Redux Toolkit (poore app me)
+Clean tested code	Jest unit + integration tests (mongodb-memory-server), documented in TEST_CASES.md
+Git workflow	Normal repo, commits
+Responsive UI	MUI-based, existing e-commerce frontend
+Analytics dashboard	AdminAnalyticsPage already exists (order analytics)
+OAuth	Google OAuth already wired (passport-google-oauth20) in base app
+🟡 Partial / adjacent (thoda gap hai, but transferable)
+Requirement	Status
+"AI coding proficiency (Cursor/Claude)"	Tum literally Claude Code se hi ye poora project bana rahe ho — but job specifically Cursor AI maangta hai. Concept same hai (AI-assisted iterative dev), tool alag
+Stripe billing	stripe aur razorpay dono packages already backend/package.json me hain (base app se), lekin abhi tak actual payment integration test nahi ki tumne is session me
+Subscription flows	Business.plan field (trial/basic/pro enum) already schema me hai, lekin koi actual billing/upgrade logic wired nahi hai — abhi sirf ek static field hai
+CI/CD	Koi GitHub Actions pipeline nahi hai abhi
+❌ Poori tarah missing (biggest gaps)
+Shopify development — sabse bada gap, aur job posting me 2 baar "Must-Have" likha hai:
+Shopify app development (OAuth, webhooks, API)
+Liquid themes / Dawn customization / Hydrogen headless / Polaris
+Shopify Plus, checkout extensions, Payments Apps
+Ye ek poora alag ecosystem hai — Revivio ka koi bhi hissa isse cover nahi karta
+Next.js + TypeScript + Tailwind — job ka frontend stack specifically Next.js/TS/Tailwind maangta hai; Revivio frontend Create React App + plain JS + MUI hai (react-scripts, no TypeScript, no Tailwind seen abhi package.json me)
+TanStack Query / SWR — tum Redux Toolkit + manual axios use kar rahe ho; ye alag data-fetching paradigm hai (server-state caching library) jo job specifically naam leke maangta hai
+Supabase specifically — tumhara RLS demo raw Postgres+Docker pe hai (concept same hai, Supabase bhi Postgres+RLS hi hai), lekin Supabase ka apna ecosystem (Auth, Edge Functions, Storage, client SDK) touch nahi hua
+Lovable — naam se hi ek specific no-code/AI prototyping tool hai, kabhi use nahi kiya
+Deployment (Vercel/Render) + Sentry monitoring — abhi tak sirf local dev discuss hua hai, koi deployment/monitoring setup nahi dekha is conversation me
+Bottom line
+Tumhara backend/SaaS-architecture side (multi-tenancy, RBAC, tenant isolation, transactional billing engine) is job ke liye interview-ready strong hai — ye exact concepts hain jo wo test karenge. Lekin stack mismatch hai: job Next.js+TS+Tailwind+Supabase+Shopify maangta hai, tumhara project CRA+JS+MUI+MongoDB(+Postgres demo) hai. Agar isi job ke liye target kar rahe ho, sabse high-leverage gap Shopify basics (chhota sa demo app/theme customization) hoga — baaki concepts (RLS, RBAC, transactions) already transferable hain, bas tool badalna hai.
