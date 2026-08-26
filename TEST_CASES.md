@@ -160,6 +160,15 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 | Container's `utils/Emails.js` (via `docker-compose exec`) matches the Resend-based source | Confirms the Docker image was rebuilt with current code, not stale | Pass |
 | Inviting a real, checkable email as staff on rivavio.com delivers an actual email to that inbox | End-to-end email deliverability via Resend, replacing the silently-failing Gmail SMTP path | Pass — confirmed received in `mail.nrj@gmail.com` inbox |
 
+## Google OAuth
+
+| Test Case | Verifies | Status |
+|---|---|---|
+| `GET /api/auth/google` on localhost redirects (302) to accounts.google.com with correct client_id | Local Google OAuth wiring | Pass |
+| Same check on https://rivavio.com | AWS production Google OAuth wiring | Pass |
+| Same check on https://rivavio.onrender.com | Render staging Google OAuth wiring | Pass |
+| Full interactive login (choosing a real Google account) | End-to-end login flow | — (requires the user's own Google session, not run via automation) |
+
 ---
 
 <!--

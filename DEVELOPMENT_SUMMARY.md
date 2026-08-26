@@ -305,4 +305,26 @@ email actually arrived in that inbox after both fixes landed.
 
 ---
 
+## 10. Google OAuth ("Sign in with Google") — configured for real
+
+**What:** `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_CALLBACK_URL` had existed as empty
+placeholders in `.env` since before this session — the code path (`backend/config/passport.js`,
+gated by `isGoogleAuthConfigured`) was already written and correctly returned a 503 rather than
+crashing, but the feature had simply never been set up with real credentials.
+
+**Why:** "Sign in with Google" was a visible, advertised feature that silently 503'd — worth
+actually finishing rather than leaving half-built.
+
+**Setup:** created a Google Cloud Console project + OAuth consent screen + OAuth 2.0 Web
+credentials, with all three environments' callback URLs registered as authorized redirect URIs:
+`http://localhost:8000/...`, `https://rivavio.com/...`, `https://rivavio.onrender.com/...`.
+
+**Manual test:** confirmed via `GET /api/auth/google` on all three environments (local, AWS,
+Render) that the response is a `302` redirecting to `accounts.google.com` with the correct
+`client_id` and `redirect_uri` (previously a `503 Google sign-in is not configured yet`). The
+final interactive login click-through (choosing a real Google account) is left for the user to
+do themselves, since it runs through their personal Google session in-browser.
+
+---
+
 <!-- Add new entries above this line, following the same format: What / Why / Files / Manual test -->
