@@ -123,9 +123,10 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 | New Bill form creates a bill, redirects to its detail page | CreateBillPage → BillDetailsPage | Pass |
 | Bill detail pricing breakdown matches a hand calculation | 10g @ ₹6000/g, 5% wastage, 10% making, 3% GST → ₹71,379 total, verified against hand math | Pass |
 | Recording a payment by phone updates bill status + ledger | RecordPaymentForm → status flips to partial, credit entry appears | Pass |
+| Recording a payment equal to the full outstanding amount | Status flips all the way to "paid", not stuck at partial | Pass — confirmed 2026-08-26 on rivavio.com |
 | Ledger page lists all business entries, links back to bills | BusinessLedgerPage — both debit and credit entries present | Pass |
 | Owner sees invite form + remove buttons on Staff page | Role-gated UI (role==="owner") | Pass |
-| Staff-role user sees read-only team table, no invite/remove UI | Role-gated UI (non-owner) | — (not yet run as a second, staff-role session) |
+| Staff-role user sees read-only team table, no invite/remove UI | Role-gated UI (non-owner) | Pass — confirmed 2026-08-26 on rivavio.com with a real second staff-role login (no Invite form, no delete icons) |
 
 **Bugs found and fixed by this test run:**
 1. Creating a business redirected to `/business/dashboard` but rendered a 404 — `App.js` rebuilds its route table reactively from `loggedInUser.businessId`, and the in-SPA `navigate()` call right after the `checkAuth` dispatch could still land on the router snapshot from before that state change committed. Fixed in `CreateBusinessForm.jsx` by switching to a hard navigation (`window.location.href`), which remounts the app and re-fetches auth state before any routing decision.
