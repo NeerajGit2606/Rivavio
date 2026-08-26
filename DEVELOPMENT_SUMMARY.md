@@ -244,6 +244,20 @@ talking to `https://rivavio.onrender.com`. Business creation correctly landed on
 pricing math matched exactly: 10g @ ₹6000/g, 5% wastage → 10.5g effective weight, ₹63,000 metal
 value, ₹6,300 making charge, ₹2,079 GST, ₹71,379 total.
 
+**Role of this deployment:** Vercel+Render is a staging/proof environment for this specific
+skill (verify here first), not a replacement for the real site — `rivavio.com` stays on AWS EC2.
+An existing `.github/workflows/deploy.yml` GitHub Action already auto-deploys every push to
+`main` to AWS (SCP the frontend build + nginx config, SSH `git pull` + rebuild the backend Docker
+image) — so once a change is verified on Vercel/Render, pushing it to `main` also syncs it to the
+real `rivavio.com` automatically, no separate manual AWS deploy step needed.
+
+**Verified on rivavio.com directly (2026-08-26):** confirmed the auto-deploy actually landed by
+checking the two most recent pushes' GitHub Actions runs (`deploy.yml`) — both `completed`/
+`success`. Then re-ran the full Playwright signup → business → bill → payment → ledger → staff
+flow a second time against `https://rivavio.com` itself (same shared MongoDB Atlas cluster as
+local/Render — the OTP-bypass-by-DB-write trick worked unchanged). Every step passed identically,
+same ₹71,379 pricing result, confirming the AWS production site has the same verified behavior.
+
 ---
 
 <!-- Add new entries above this line, following the same format: What / Why / Files / Manual test -->

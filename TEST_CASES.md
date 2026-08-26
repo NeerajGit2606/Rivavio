@@ -143,6 +143,14 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 | Record payment → status updates, ledger shows debit+credit | Full billing flow against the deployed backend | Pass |
 | Staff page renders correctly for owner | Role-gated UI works in production build | Pass |
 
+## Deployment — AWS (rivavio.com, the real production site)
+
+| Test Case | Verifies | Status |
+|---|---|---|
+| GitHub Actions `deploy.yml` run for the latest commit shows `completed`/`success` | Push-to-`main` auto-deploy pipeline to EC2 actually ran | Pass |
+| GET https://rivavio.com/ returns 200 | Site is up after the auto-deploy | Pass |
+| Full signup → business → bill → payment → ledger → staff flow, run a second time directly against rivavio.com | Same verified behavior holds on the real production site, not just the Vercel/Render staging copy | Pass |
+
 ---
 
 <!--
