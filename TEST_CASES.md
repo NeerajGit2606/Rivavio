@@ -131,6 +131,18 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 1. Creating a business redirected to `/business/dashboard` but rendered a 404 — `App.js` rebuilds its route table reactively from `loggedInUser.businessId`, and the in-SPA `navigate()` call right after the `checkAuth` dispatch could still land on the router snapshot from before that state change committed. Fixed in `CreateBusinessForm.jsx` by switching to a hard navigation (`window.location.href`), which remounts the app and re-fetches auth state before any routing decision.
 2. `<Table component={Paper}>` in `BillsTable.jsx`, `BusinessLedger.jsx`, `StaffTable.jsx`, `BillDetails.jsx` produced invalid HTML (`<thead>`/`<tbody>` as a direct child of a `<div>`, since `component={Paper}` overrides `Table`'s root element) — fixed by wrapping with `<TableContainer component={Paper}><Table>...</Table></TableContainer>`, the pattern MUI actually documents.
 
+## Deployment — Vercel + Render (Playwright browser automation, headless Chromium, against the real live URLs)
+
+| Test Case | Verifies | Status |
+|---|---|---|
+| GET https://rivavio.onrender.com/ returns 200 `{"message":"running"}` | Render backend is live | Pass |
+| CORS preflight from the Vercel origin returns `access-control-allow-origin` matching it | `ORIGIN` env var correctly configured on Render | Pass |
+| Fresh signup + OTP-bypass + login against the live stack | Cross-origin cookie auth (`sameSite:None`) works across two real domains, not just localhost | Pass |
+| Create business → lands on dashboard (no 404) | Routing-race fix (see Frontend UI bugs) holds in production build too | Pass |
+| Create bill → pricing matches hand calculation | Same jewelry pricing formula, verified against live Atlas data | Pass |
+| Record payment → status updates, ledger shows debit+credit | Full billing flow against the deployed backend | Pass |
+| Staff page renders correctly for owner | Role-gated UI works in production build | Pass |
+
 ---
 
 <!--

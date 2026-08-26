@@ -211,4 +211,39 @@ rows (fail-closed); cross-tenant `INSERT`/`UPDATE` blocked/no-op.
 
 ---
 
+## 8. Deployment — Vercel (frontend) + Render (backend)
+
+**What:** Deployed the SPA to Vercel and the Express API to Render, as an additive path alongside
+the existing (unrelated, pre-dating this project's SaaS work) Docker/AWS EC2 setup. One backend
+code change was required: `backend/index.js` now binds `server.listen(process.env.PORT || 8000,
+...)` instead of a hardcoded `8000`, since Render assigns its own port at runtime.
+
+**Why:** The target job posting names Vercel/Render explicitly as a required deployment skill —
+this proves the whole stack (React SPA + Express API + MongoDB Atlas + cross-origin cookie auth)
+actually works across two different real domains, not just `localhost`.
+
+**Live URLs:**
+- Frontend: `https://frontend-psi-livid-23.vercel.app`
+- Backend: `https://rivavio.onrender.com` (`GET /` → `{"message":"running"}`)
+
+**Key design notes:**
+- Backend CORS already read `process.env.ORIGIN` — just had to be pointed at the real Vercel URL.
+- Cross-origin cookie auth (`sameSite:'None', secure:true` when `PRODUCTION==='true'`, in
+  `Auth.js`'s `res.cookie(...)` calls) had never been exercised across two genuinely different
+  domains before — confirmed working for real in this deploy.
+- Same MongoDB Atlas cluster is used by both local dev and the deployed backend — no DB migration
+  needed.
+- Render's free tier spins the service down after ~15 min idle; the first request after idle
+  takes 30-50s to cold-start. Worth mentioning proactively in an interview, not a bug.
+
+**Verified via automated browser testing (Playwright, headless Chromium) against the live
+deployed stack** — full signup → OTP-bypass → login → create business → dashboard → create bill
+→ record payment → ledger → staff flow, all against `https://frontend-psi-livid-23.vercel.app`
+talking to `https://rivavio.onrender.com`. Business creation correctly landed on the dashboard
+(no 404 — confirms the routing-race fix from section 6 holds in production too), and the bill's
+pricing math matched exactly: 10g @ ₹6000/g, 5% wastage → 10.5g effective weight, ₹63,000 metal
+value, ₹6,300 making charge, ₹2,079 GST, ₹71,379 total.
+
+---
+
 <!-- Add new entries above this line, following the same format: What / Why / Files / Manual test -->
