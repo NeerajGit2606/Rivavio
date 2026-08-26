@@ -2,28 +2,25 @@ import React, { useState } from 'react'
 import { Stack, Typography, Paper, TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { createBusiness } from '../BusinessApi'
-import { checkAuthAsync } from '../../auth/AuthSlice'
 
 export const CreateBusinessForm = () => {
     const [loading, setLoading] = useState(false)
     const { register, handleSubmit, formState: { errors } } = useForm()
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
 
     const onSubmit = async (data) => {
         setLoading(true)
         try {
             await createBusiness(data)
-            // the server re-issued our JWT cookie with the fresh businessId/role claims,
-            // but Redux still holds the old loggedInUser -- re-run checkAuth so the app
-            // (and route guards keyed on loggedInUser.businessId) pick up the change
-            await dispatch(checkAuthAsync())
             toast.success('Business created')
-            navigate('/business/dashboard')
+            // App.js's route table is rebuilt from loggedInUser.businessId, recomputed on
+            // every render -- an in-SPA navigate() right after a checkAuth dispatch can still
+            // land on the router snapshot from before that state change committed, producing
+            // a bogus 404 (confirmed via browser testing, a setTimeout(0) deferral was not
+            // enough to reliably beat the race). A hard navigation sidesteps the race
+            // entirely: the whole app remounts and fetches checkAuth before routing at all.
+            window.location.href = '/business/dashboard'
         } catch (error) {
             toast.error(error?.message || 'Error creating business')
         } finally {

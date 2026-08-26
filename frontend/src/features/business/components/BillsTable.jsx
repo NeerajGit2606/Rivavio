@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, TableHead, TableRow, TableCell, TableBody, Paper, Chip, Link as MuiLink } from '@mui/material'
+import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Chip, Link as MuiLink } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { formatPrice } from '../../../utils/formatPrice'
 
@@ -11,7 +11,8 @@ const statusColor = {
 
 export const BillsTable = ({ bills }) => {
     return (
-        <Table component={Paper}>
+        <TableContainer component={Paper}>
+        <Table>
             <TableHead>
                 <TableRow>
                     <TableCell>Bill #</TableCell>
@@ -39,5 +40,6 @@ export const BillsTable = ({ bills }) => {
                 ))}
             </TableBody>
         </Table>
+        </TableContainer>
     )
 }

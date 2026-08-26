@@ -1,10 +1,11 @@
 import React from 'react'
-import { Table, TableHead, TableRow, TableCell, TableBody, Paper, Chip, IconButton } from '@mui/material'
+import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Chip, IconButton } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 
 export const StaffTable = ({ members, isOwner, onRemove }) => {
     return (
-        <Table component={Paper}>
+        <TableContainer component={Paper}>
+        <Table>
             <TableHead>
                 <TableRow>
                     <TableCell>Name</TableCell>
@@ -32,5 +33,6 @@ export const StaffTable = ({ members, isOwner, onRemove }) => {
                 ))}
             </TableBody>
         </Table>
+        </TableContainer>
     )
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Stack, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Chip, Link as MuiLink } from '@mui/material'
+import { Stack, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Chip, Link as MuiLink } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getAllLedger } from '../BusinessApi'
@@ -26,7 +26,8 @@ export const BusinessLedger = () => {
                 {entries.length === 0 ? (
                     <Typography color="text.secondary">No ledger entries yet.</Typography>
                 ) : (
-                    <Table component={Paper}>
+                    <TableContainer component={Paper}>
+                    <Table>
                         <TableHead>
                             <TableRow>
                                 <TableCell>Date</TableCell>
@@ -56,6 +57,7 @@ export const BusinessLedger = () => {
                             ))}
                         </TableBody>
                     </Table>
+                    </TableContainer>
                 )}
             </Stack>
         </Stack>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Stack, Typography, Paper, Chip, Table, TableHead, TableRow, TableCell, TableBody, Divider } from '@mui/material'
+import { Stack, Typography, Paper, Chip, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Divider } from '@mui/material'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getBillById, getBillLedger } from '../BusinessApi'
@@ -53,7 +53,8 @@ export const BillDetails = () => {
 
             <Stack width="40rem" maxWidth="95vw" rowGap={2}>
                 <Typography variant="h6">Ledger Trail</Typography>
-                <Table component={Paper}>
+                <TableContainer component={Paper}>
+                <Table>
                     <TableHead>
                         <TableRow>
                             <TableCell>Date</TableCell>
@@ -77,6 +78,7 @@ export const BillDetails = () => {
                         ))}
                     </TableBody>
                 </Table>
+                </TableContainer>
             </Stack>
         </Stack>
     )

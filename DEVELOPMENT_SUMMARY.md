@@ -171,6 +171,19 @@ bill's detail page matches a hand calculation → on the Bills page, record a pa
 number → confirm the bill's status flips and a credit entry appears in its ledger trail → Staff
 page as owner → invite a second test user → confirm they only see a read-only team table.
 
+**Verified via automated browser testing (Playwright + headless Chromium, not just a compile
+check):** ran the full flow above end-to-end against the real local backend. Two real bugs
+surfaced and got fixed as a result — see the "Bugs found and fixed" note under the Frontend UI
+section of `TEST_CASES.md` (a post-business-creation routing race producing a bogus 404, and an
+invalid-HTML `<Table component={Paper}>` pattern repeated across four table components). Pricing
+math was cross-checked by hand: 10g @ ₹6000/g with 5% wastage, 10% making charge, 3% GST produced
+exactly ₹71,379 total, matching `jewelryPricing.js`'s formula.
+
+**Local dev note:** port 3000 is occupied by a separate, unrelated project (StyleRoute) also
+being developed in this environment. Run Rivavio's frontend on a different port locally —
+`PORT=3001 npm start` — and keep `backend/.env`'s `ORIGIN` matching whichever port is actually
+in use, or CORS will silently reject requests.
+
 ---
 
 ## 7. Postgres RLS Demo (isolated side-project)

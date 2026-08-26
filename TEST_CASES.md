@@ -112,19 +112,24 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 | Business A cannot INSERT under Business B's business_id | RLS WITH CHECK blocks cross-tenant writes | Pass |
 | Business A's UPDATE on B's row affects zero rows, no error | RLS USING silently filters cross-tenant updates | Pass |
 
-## Frontend UI (Manual · click-through in browser)
+## Frontend UI (Playwright browser automation, headless Chromium — real click-through against the local dev stack, not just a compile check)
 
 | Test Case | Verifies | Status |
 |---|---|---|
 | Build compiles clean (`npx react-scripts build`) | No syntax/import errors across new files | Pass |
-| Fresh user sees "Start a Business" link, form creates business | CreateBusinessPage + JWT refresh via checkAuthAsync | — |
-| Dashboard shows business info + nav cards after creation | BusinessDashboardPage | — |
-| New Bill form creates a bill, redirects to its detail page | CreateBillPage → BillDetailsPage | — |
-| Bill detail pricing breakdown matches a hand calculation | Paise→rupee display conversion correctness | — |
-| Recording a payment by phone updates bill status + ledger | RecordPaymentForm → BusinessBillsPage/BillDetails refresh | — |
-| Ledger page lists all business entries, links back to bills | BusinessLedgerPage | — |
-| Owner sees invite form + remove buttons on Staff page | Role-gated UI (role==="owner") | — |
-| Staff-role user sees read-only team table, no invite/remove UI | Role-gated UI (non-owner) | — |
+| Fresh user signs up, OTP-verified, logs in | Signup → verify → login flow | Pass |
+| "Start a Business" form creates business, lands on dashboard | CreateBusinessPage, dashboard route resolves correctly | Pass |
+| Dashboard shows business info + nav cards after creation | BusinessDashboardPage | Pass |
+| New Bill form creates a bill, redirects to its detail page | CreateBillPage → BillDetailsPage | Pass |
+| Bill detail pricing breakdown matches a hand calculation | 10g @ ₹6000/g, 5% wastage, 10% making, 3% GST → ₹71,379 total, verified against hand math | Pass |
+| Recording a payment by phone updates bill status + ledger | RecordPaymentForm → status flips to partial, credit entry appears | Pass |
+| Ledger page lists all business entries, links back to bills | BusinessLedgerPage — both debit and credit entries present | Pass |
+| Owner sees invite form + remove buttons on Staff page | Role-gated UI (role==="owner") | Pass |
+| Staff-role user sees read-only team table, no invite/remove UI | Role-gated UI (non-owner) | — (not yet run as a second, staff-role session) |
+
+**Bugs found and fixed by this test run:**
+1. Creating a business redirected to `/business/dashboard` but rendered a 404 — `App.js` rebuilds its route table reactively from `loggedInUser.businessId`, and the in-SPA `navigate()` call right after the `checkAuth` dispatch could still land on the router snapshot from before that state change committed. Fixed in `CreateBusinessForm.jsx` by switching to a hard navigation (`window.location.href`), which remounts the app and re-fetches auth state before any routing decision.
+2. `<Table component={Paper}>` in `BillsTable.jsx`, `BusinessLedger.jsx`, `StaffTable.jsx`, `BillDetails.jsx` produced invalid HTML (`<thead>`/`<tbody>` as a direct child of a `<div>`, since `component={Paper}` overrides `Table`'s root element) — fixed by wrapping with `<TableContainer component={Paper}><Table>...</Table></TableContainer>`, the pattern MUI actually documents.
 
 ---
 
