@@ -260,4 +260,49 @@ same ₹71,379 pricing result, confirming the AWS production site has the same v
 
 ---
 
+## 9. Staff-invite email notification + a real CI/CD deploy bug
+
+**What:** `inviteStaff` (`backend/controllers/Business.js`) previously only updated the DB —
+the invited user had no way to know they'd been added to a business. Added a `sendMail(...)`
+call after the invite succeeds. Along the way, discovered email delivery itself needed fixing,
+and then discovered the AWS deploy pipeline had been silently broken.
+
+**Why:** A silent feature (no notification) is a worse staff-management UX than an obviously
+incomplete one — the invited person would only find out by being told outside the app.
+
+**Bug #1 — Gmail SMTP silently drops mail sent from cloud server IPs.** The original
+`Emails.js` used `nodemailer` + a personal Gmail account's App Password. Sending worked from a
+local dev machine but **silently failed with no error and no bounce** when sent from Render's or
+AWS's server IPs — Google's spam heuristics accept-then-discard mail from unrecognized
+cloud/datacenter IPs without an SPF/DKIM-aligned sending domain. **Fix:** switched to
+[Resend](https://resend.com) (a dedicated transactional email API) with `rivavio.com` verified
+as a sending domain (DKIM/SPF/DMARC records added via Cloudflare, which turned out to be the
+domain's actual DNS host — Namecheap is only the registrar). `Emails.js`'s exported `sendMail(to,
+subject, body)` signature was kept identical, so no caller (OTP, password reset, staff invite)
+needed to change.
+
+**Bug #2 — the AWS backend deploy pipeline had been silently no-op'ing for the rest of this
+session.** Earlier in this session, an unrelated git-history rewrite (`git filter-branch` +
+force-push, to strip a `Co-Authored-By: Claude` trailer from old commits) made the EC2 server's
+existing local clone diverge from `origin/main`. `.github/workflows/deploy.yml`'s backend job ran
+`git pull origin main` over SSH **without `set -e`** — so when the pull failed (unrelated
+histories), the script didn't stop; it went on to `docker-compose down && docker build && up -d`
+using the *same stale, un-pulled code* every time, and still exited 0. GitHub Actions reported
+`success` on every push after the rewrite, even though nothing backend-side was actually
+deploying — confirmed by finding the EC2 server's `git log` still pointed at a commit from
+several features ago, while the frontend deploy job (a separate GitHub-runner build + `scp`,
+never dependent on the server's git state) kept working normally the whole time. This is why the
+earlier "verified on rivavio.com" browser test looked clean: it only exercised behavior that
+hadn't changed backend-side since that stale commit.
+
+**Fix:** `deploy.yml`'s backend job now does `set -e` + `git fetch && git reset --hard
+origin/main` instead of `git pull` — a divergent/stale server clone self-heals by force-matching
+the remote instead of silently failing to update.
+
+**Manual test:** invited a real, checkable email (`mail.nrj@gmail.com`, the same account used as
+the old Gmail sender) as staff from a live AWS test business, and confirmed the notification
+email actually arrived in that inbox after both fixes landed.
+
+---
+
 <!-- Add new entries above this line, following the same format: What / Why / Files / Manual test -->

@@ -147,9 +147,17 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 
 | Test Case | Verifies | Status |
 |---|---|---|
-| GitHub Actions `deploy.yml` run for the latest commit shows `completed`/`success` | Push-to-`main` auto-deploy pipeline to EC2 actually ran | Pass |
+| GitHub Actions `deploy.yml` run for the latest commit shows `completed`/`success` | Push-to-`main` auto-deploy pipeline to EC2 actually ran — **caveat:** this alone doesn't prove the backend code actually updated, see the CI/CD bug below | Pass |
 | GET https://rivavio.com/ returns 200 | Site is up after the auto-deploy | Pass |
 | Full signup → business → bill → payment → ledger → staff flow, run a second time directly against rivavio.com | Same verified behavior holds on the real production site, not just the Vercel/Render staging copy | Pass |
+
+## Staff-invite email notification (real inbox check, AWS production)
+
+| Test Case | Verifies | Status |
+|---|---|---|
+| EC2 server's `git log` matches the latest pushed commit after a deploy | Confirms `deploy.yml`'s backend job actually updated the server's code, not just reported success | Pass (after fixing `deploy.yml` to `git fetch && reset --hard` — was silently failing before) |
+| Container's `utils/Emails.js` (via `docker-compose exec`) matches the Resend-based source | Confirms the Docker image was rebuilt with current code, not stale | Pass |
+| Inviting a real, checkable email as staff on rivavio.com delivers an actual email to that inbox | End-to-end email deliverability via Resend, replacing the silently-failing Gmail SMTP path | Pass — confirmed received in `mail.nrj@gmail.com` inbox |
 
 ---
 
