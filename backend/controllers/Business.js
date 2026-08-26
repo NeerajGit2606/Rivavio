@@ -2,6 +2,7 @@ const Business = require("../models/Business")
 const User = require("../models/User")
 const { sanitizeUser } = require("../utils/SanitizeUser")
 const { generateToken } = require("../utils/GenerateToken")
+const { sendMail } = require("../utils/Emails")
 
 const slugify = (name) => name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
@@ -97,6 +98,15 @@ exports.inviteStaff = async (req, res) => {
         invitee.businessId = req.businessId
         invitee.role = "staff"
         await invitee.save()
+
+        const business = await Business.findById(req.businessId)
+        await sendMail(
+            invitee.email,
+            `You've been added to ${business?.name || "a business"} on Rivavio`,
+            `<p>Hi ${invitee.name || ""},</p>
+            <p>You've been added as a staff member for <b>${business?.name || "a business"}</b> on Rivavio.
+            Log in to your account and open "My Business" to start managing bills and payments.</p>`
+        )
 
         res.status(200).json({ _id: invitee._id, name: invitee.name, email: invitee.email, role: invitee.role })
     } catch (error) {
