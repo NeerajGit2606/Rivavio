@@ -327,4 +327,31 @@ do themselves, since it runs through their personal Google session in-browser.
 
 ---
 
+## 11. Shopify embedded app — deployed permanently, webhook confirmed
+
+**What:** `shopify-app-demo/` (a separate, isolated Shopify CLI-scaffolded embedded app — see
+earlier notes on Admin GraphQL product listing, OAuth, and the `products/update` webhook) had
+only ever run in Shopify CLI's local dev-tunnel mode (`npm run dev`), which requires a terminal
+to stay open and dies the moment it's closed. Deployed it permanently to its own Render Web
+Service (`https://jewelry-shop-connect.onrender.com`, Root Directory `shopify-app-demo`, using
+its own scaffolded `Dockerfile`) so the app is demoable without any local process running.
+
+**Why:** A dev-tunnel-only demo isn't presentable to an interviewer or client without keeping a
+terminal open and screen-sharing awkwardly — a permanent URL is table stakes for a "finished"
+demo.
+
+**Setup:** updated `shopify.app.toml`'s `application_url` and `[auth] redirect_urls` to the new
+Render URL, ran `npm run deploy` (Shopify CLI, interactive login) to push the new config to
+Shopify's servers as a new app version, then reinstalled the app on the dev store (its session
+storage is Prisma+SQLite on Render's ephemeral disk — free tier restarts wipe it, so a
+re-install/re-auth is expected occasionally, same caveat as Render's cold-start behavior
+elsewhere in this project).
+
+**Manual test:** opened the app on the dev store (loaded correctly from the Render URL, not the
+old dev tunnel), confirmed the embedded Products page still works via Admin GraphQL, then edited
+a real product's title/price on the dev store and confirmed via Render's Logs tab that the
+`products/update` webhook fired and was received by the deployed app.
+
+---
+
 <!-- Add new entries above this line, following the same format: What / Why / Files / Manual test -->

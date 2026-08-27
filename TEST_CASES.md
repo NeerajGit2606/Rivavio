@@ -169,6 +169,14 @@ Docker Postgres) · `Manual` (curl/psql, human-run).
 | Same check on https://rivavio.onrender.com | Render staging Google OAuth wiring | Pass |
 | Full interactive login (choosing a real Google account) | End-to-end login flow | — (requires the user's own Google session, not run via automation) |
 
+## Shopify Embedded App — deployed to Render
+
+| Test Case | Verifies | Status |
+|---|---|---|
+| App loads on the dev store from the Render URL (not the old local dev tunnel) | Permanent deployment replaces `shopify app dev`'s temporary tunnel | Pass |
+| Embedded Products page still lists real store products via Admin GraphQL | Deployed app's API wiring unaffected by the move off local dev | Pass |
+| Editing a real product's title/price triggers the `products/update` webhook | Confirmed via Render's Logs tab showing the webhook received | Pass |
+
 ---
 
 <!--
