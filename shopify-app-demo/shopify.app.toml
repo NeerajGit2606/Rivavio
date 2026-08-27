@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a8b7f8159a6e27596562f1387c455071"
-application_url = "https://shopify.dev/apps/default-app-home"
+application_url = "https://jewelry-shop-connect.onrender.com"
 embedded = true
 name = "Jewelry Shop Connect"
 
@@ -49,7 +49,7 @@ api_version = "2026-10"
   topics = [ "products/update" ]
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [ "https://jewelry-shop-connect.onrender.com/auth/callback" ]
 
 [build]
 include_config_on_deploy = true
